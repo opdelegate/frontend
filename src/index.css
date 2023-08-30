@@ -13,14 +13,22 @@ code {
 }
 
 @font-face {
-  font-family: 'Artico';
-  src: local('Artico'),
+  font-family: 'Inter';
+  src: local('Inter'),
     url('./fonts/Inter/Inter-VariableFont_slnt,wght.ttf') format('truetype');
   /* font-weight: bold; */
 }
 
-.font-face-gm {
+@font-face {
   font-family: 'Artico';
+  src: local('Artico'),
+    url('./fonts/Artico/Fontspring-DEMO-artico-extrabold.otf')
+      format('truetype');
+  /* font-weight: bold; */
+}
+
+.global-font-face {
+  font-family: 'Inter';
 }
 
 /* loader animation */
@@ -30,5 +38,14 @@ code {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 50px, 0);
   }
 }

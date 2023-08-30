@@ -26,7 +26,7 @@ const Loader = () => {
 
         <Box display="flex" justifyContent="center">
           <Image
-            src="/spinner.png"
+            src="/images/spinner.png"
             //   sizes="40px"
             width={14}
             height={14}

@@ -11,6 +11,7 @@ import {
 import Dashboard from './components/Dashboard';
 import { ShowLoaderContext } from './contexts/ShowLoaderContext';
 import Loader from './components/Loader';
+import LandingPage from './components/LandingPage';
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -30,14 +31,14 @@ function App() {
         <ShowLoaderContext.Provider value={{ showLoader, setShowLoader }}>
           <Navbar />
           <Box
-            className="font-face-gm"
+            className="global-font-face"
             backgroundColor="#F7F8FC"
             overflowY="auto"
             w="100%"
             height="calc(100vh - 70px)"
           >
             {user && <Dashboard />}
-            {!user && 'lading page'}
+            {!user && <LandingPage />}
           </Box>
           {showLoader && <Loader />}
         </ShowLoaderContext.Provider>
