@@ -19,13 +19,20 @@ import {
   LOCALSTORAGE_OBJECTS_NAMES,
   removeItemFromLocalStorage,
 } from '../utils/localStorageFunctions';
+import {
+  ShowLoaderContext,
+  ShowLoaderContextType,
+} from '../contexts/ShowLoaderContext';
 
 function Navbar() {
   const windowsSize = useWindowSize();
   const { user, setUser }: UserContextType = useContext(UserContext);
+  const { showLoader, setShowLoader }: ShowLoaderContextType =
+    useContext(ShowLoaderContext);
   const onSearch = useCallback(() => {}, []);
 
   const connect = useCallback(() => {
+    setShowLoader(true);
     const loggedInUser: User = {
       address: '0x11...d752',
       userName: '',
@@ -33,7 +40,11 @@ function Navbar() {
     };
     setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
     setUser(loggedInUser);
-  }, [setUser]);
+
+    setTimeout(() => {
+      setShowLoader(false);
+    }, 3000);
+  }, [setShowLoader, setUser]);
 
   const disconnect = useCallback(() => {
     removeItemFromLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER);
@@ -61,14 +72,6 @@ function Navbar() {
       boxShadow="rgba(95, 95, 95, 0.05)"
     >
       <Box>
-        {/* <Text
-          color="rgba(255, 4, 32, 1)"
-          fontWeight={700}
-          fontSize={[16, 20, 32]}
-        >
-          OPDELEGATES
-        </Text> */}
-
         <svg
           width="230"
           height="24"

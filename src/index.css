@@ -22,3 +22,13 @@ code {
 .font-face-gm {
   font-family: 'Artico';
 }
+
+/* loader animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
