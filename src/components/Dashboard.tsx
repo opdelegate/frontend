@@ -44,7 +44,13 @@ function Dashboard() {
 
   return (
     <Box px={[4, 4, 12, 20]}>
-      <HStack justifyContent="space-between" py={6}>
+      <Stack
+        py={6}
+        justifyContent="space-between"
+        // display={['block', 'block', 'flex']}
+        direction={['column', 'column', 'row']}
+        gap={4}
+      >
         <HStack fontSize={[24, 24, 30]}>
           <BiTargetLock color="red" />
           <Text as="b">
@@ -67,15 +73,15 @@ function Dashboard() {
             </Text>
           </HStack>
         </Box>
-      </HStack>
+      </Stack>
       <Divider />
 
-      <Stack py={6} gap={4} display="flex">
+      <Stack py={6} gap={[5, 5, 4]} display="flex">
         {/* Line Charts */}
         <Stack
           display={['flex']}
           direction={['column', 'column', 'row']}
-          gap={4}
+          gap={[5, 5, 4]}
         >
           <Box w={['100%', '100%', '50%']}>
             <Heading mb={4} fontSize={24}>
@@ -105,7 +111,7 @@ function Dashboard() {
         <Stack
           display={['flex']}
           direction={['column', 'column', 'row']}
-          gap={4}
+          gap={[5, 5, 4]}
         >
           <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
             <CustomAreaChart
@@ -127,7 +133,7 @@ function Dashboard() {
         <Stack
           display={['flex']}
           direction={['column', 'column', 'row']}
-          gap={4}
+          gap={[5, 5, 4]}
         >
           <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
             <CustomTable

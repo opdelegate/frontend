@@ -34,7 +34,7 @@ function App() {
             backgroundColor="#F7F8FC"
             overflowY="auto"
             w="100%"
-            height="calc(100vh - 78px)"
+            height="calc(100vh - 70px)"
           >
             {user && <Dashboard />}
             {!user && 'lading page'}
