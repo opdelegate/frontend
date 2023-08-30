@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'Artico';
+  src: local('Artico'),
+    url('./fonts/Inter/Inter-VariableFont_slnt,wght.ttf') format('truetype');
+  /* font-weight: bold; */
+}
+
+.font-face-gm {
+  font-family: 'Artico';
+}

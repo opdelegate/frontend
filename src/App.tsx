@@ -26,6 +26,7 @@ function App() {
       <UserContext.Provider value={{ user, setUser }}>
         <Navbar />
         <Box
+          className="font-face-gm"
           backgroundColor="#F7F8FC"
           overflowY="auto"
           w="100%"
