@@ -68,23 +68,10 @@ export const CustomTable = ({
   return (
     <CustomTableWrapper label={label}>
       <TableContainer>
-        <Table
-          w="100%"
-          variant="striped"
-          size="sm"
-          __css={
-            {
-              // 'table-layout': 'fixed',
-              //   width: 'full'
-            }
-          }
-        >
+        <Table w="100%" variant="striped" size="sm">
           <Thead>
             <Tr>
               {headers.map((header) => (
-                // <Th key={header}>
-                //   <Text as="b">{header}</Text>
-                // </Th>
                 <Td key={header}>
                   <Text as="b">{header}</Text>
                 </Td>

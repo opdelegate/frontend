@@ -14,13 +14,18 @@ function Dashboard() {
   const { user, setUser }: UserContextType = useContext(UserContext);
 
   const [opDelegatedData, setPpDelegatedData] = useState([
-    { month: 'Feb', date: '08/03/2023', quantity: 10 },
-    { month: 'Feb', date: '08/03/2023', quantity: 20 },
-    { month: 'Feb', date: '08/03/2023', quantity: 30 },
-    { month: 'Feb', date: '08/03/2023', quantity: 35 },
-    { month: 'Feb', date: '08/03/2023', quantity: 35 },
-    { month: 'Feb', date: '08/03/2023', quantity: 40 },
-    { month: 'Feb', date: '08/03/2023', quantity: 70 },
+    { month: 'Feb', date: '08/03/2023', quantity: 10, hour: '6am' },
+    { month: 'Feb', date: '08/03/2023', quantity: 20, hour: '7am' },
+    { month: 'Feb', date: '08/03/2023', quantity: 30, hour: '8am' },
+    { month: 'Feb', date: '08/03/2023', quantity: 35, hour: '9am' },
+    { month: 'Feb', date: '08/03/2023', quantity: 35, hour: '10am' },
+    { month: 'Feb', date: '08/03/2023', quantity: 40, hour: '11am' },
+    { month: 'Feb', date: '08/03/2023', quantity: 70, hour: '12pm' },
+    { month: 'Feb', date: '08/03/2023', quantity: 75, hour: '1pm' },
+    { month: 'Feb', date: '08/03/2023', quantity: 80, hour: '2pm' },
+    { month: 'Feb', date: '08/03/2023', quantity: 85, hour: '3pm' },
+    { month: 'Feb', date: '08/03/2023', quantity: 90, hour: '4pm' },
+    { month: 'Feb', date: '08/03/2023', quantity: 95, hour: '5pm' },
   ]);
 
   const tableHeaders = ['#', 'Delegator', 'OP delegated'];
@@ -77,56 +82,54 @@ function Dashboard() {
       <Divider />
 
       <Stack py={6} gap={[5, 5, 4]} display="flex">
-        {/* Line Charts */}
         <Stack
-          display={['flex']}
+          display="flex"
           direction={['column', 'column', 'row']}
           gap={[5, 5, 4]}
         >
-          <Box w={['100%', '100%', '50%']}>
-            <Heading mb={4} fontSize={24}>
-              OP Delegated
-            </Heading>
-            <Box h={CHART_HEIGHT}>
-              <CustomLineChart
+          {/* OP Delegated Charts */}
+          <Stack gap={[5, 5, 4]} w={['100%', '100%', '50%']}>
+            <Box w="100%">
+              <Heading mb={4} fontSize={24}>
+                OP Delegated
+              </Heading>
+              <Box h={CHART_HEIGHT}>
+                <CustomLineChart
+                  data={opDelegatedData}
+                  themeColor={OPDELEGATES_RED}
+                />
+              </Box>
+            </Box>
+            <Box w="100%" h={CHART_HEIGHT}>
+              <CustomAreaChart
                 data={opDelegatedData}
+                label="OP Delegated"
                 themeColor={OPDELEGATES_RED}
               />
             </Box>
-          </Box>
-          <Box w={['100%', '100%', '50%']}>
-            <Heading mb={4} fontSize={24}>
-              Delegators
-            </Heading>
-            <Box h={CHART_HEIGHT}>
-              <CustomLineChart
+          </Stack>
+
+          {/* Delegators Charts */}
+          <Stack gap={[5, 5, 4]} w={['100%', '100%', '50%']}>
+            <Box w="100%">
+              <Heading mb={4} fontSize={24}>
+                Delegators
+              </Heading>
+              <Box h={CHART_HEIGHT}>
+                <CustomLineChart
+                  data={opDelegatedData}
+                  themeColor={OPDELEGATES_PURPLE}
+                />
+              </Box>
+            </Box>
+            <Box w="100%" h={CHART_HEIGHT}>
+              <CustomAreaChart
+                label="Delegators"
                 data={opDelegatedData}
                 themeColor={OPDELEGATES_PURPLE}
               />
             </Box>
-          </Box>
-        </Stack>
-
-        {/* Area Charts */}
-        <Stack
-          display={['flex']}
-          direction={['column', 'column', 'row']}
-          gap={[5, 5, 4]}
-        >
-          <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
-            <CustomAreaChart
-              data={opDelegatedData}
-              label="OP Delegated"
-              themeColor={OPDELEGATES_RED}
-            />
-          </Box>
-          <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
-            <CustomAreaChart
-              label="Delegators"
-              data={opDelegatedData}
-              themeColor={OPDELEGATES_PURPLE}
-            />
-          </Box>
+          </Stack>
         </Stack>
 
         {/* Top delegators */}

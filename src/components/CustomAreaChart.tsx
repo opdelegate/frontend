@@ -89,7 +89,7 @@ export const CustomAreaChart = ({
           strokeWidth={2}
         />
         <XAxis
-          dataKey="month"
+          dataKey="hour"
           //   allowDuplicatedCategory={false}
           tickLine={{ opacity: 0 }}
           tick={{ fill: 'black', fontWeight: 500 }}

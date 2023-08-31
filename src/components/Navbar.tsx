@@ -67,7 +67,7 @@ function Navbar() {
   return (
     <HStack
       px={[4, 4, 14, 24]}
-      height="70px"
+      height="66px"
       backgroundColor="white"
       justifyContent="space-between"
       boxShadow="0px 4px 10px 0px rgba(95, 95, 95, 0.05)"
@@ -104,14 +104,17 @@ function Navbar() {
             color="black"
             fontSize="14px"
             padding={isLargeScreen ? '0 12px 0 0' : 0}
-            minW="auto"
-            h="35px"
+            minW="141px"
+            // h="35px"
+            h="45px"
+            justifyContent="flex-start"
             onClick={disconnect}
           >
             <Avatar
               //   size="full"
               h="100%"
-              w="35px"
+              //   w="35px"
+              w="45px"
               name={user.userName}
               //   backgroundColor={ADJUSTANT_GREEN}
               fontSize="3xl"
