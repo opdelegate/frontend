@@ -10,26 +10,28 @@ import {
   ShowLoaderContext,
 } from '../contexts/ShowLoaderContext';
 import { UserContext } from '../contexts/UserContext';
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  useEnsAvatar,
+  useEnsName,
+} from 'wagmi';
+import ConnectWalletButton from './ConnectWalletButton';
 
 const LandingPage = () => {
   const { user, setUser }: UserContextType = useContext(UserContext);
   const { setShowLoader }: ShowLoaderContextType =
     useContext(ShowLoaderContext);
 
-  const connect = useCallback(() => {
-    setShowLoader(true);
-    const loggedInUser: User = {
-      address: '0x11...d752',
-      userName: '',
-      profileImage: '',
-    };
-    setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
-    setUser(loggedInUser);
-
-    setTimeout(() => {
-      setShowLoader(false);
-    }, 3000);
-  }, [setShowLoader, setUser]);
+  //WAGMI
+  const { address, isConnected, isDisconnected, isConnecting, isReconnecting } =
+    useAccount();
+  const { data: ensName } = useEnsName({ address });
+  const { data: ensAvatar } = useEnsAvatar({ name: ensName });
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
+  const { disconnect } = useDisconnect();
 
   return (
     <Stack
@@ -62,20 +64,13 @@ const LandingPage = () => {
           insights. Seamlessly explore your own real-time metrics or view the
           data of any other delegate.
         </Text>
-        <Button
-          variant="solid"
-          borderRadius="60px"
-          background="linear-gradient(90deg, #F30F21 0%, #9205FD 100%)"
-          paddingY="16px"
-          paddingX={['12px', '12px', '40px']}
-          color="white"
-          fontSize="14px"
-          h="45px"
-          w="141px"
-          onClick={connect}
-        >
-          Connect Wallet
-        </Button>
+        <ConnectWalletButton
+          connectors={connectors}
+          isLoading={isLoading}
+          connect={connect}
+          pendingConnector={pendingConnector}
+          isLargeScreen={true}
+        />
       </Box>
 
       <Box width={['100%', '100%', 750, 750, 750]}>

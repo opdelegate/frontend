@@ -1,5 +1,6 @@
 export type User = {
   address: string;
+  formattedAddress: string;
   userName: string;
   profileImage: string;
 };

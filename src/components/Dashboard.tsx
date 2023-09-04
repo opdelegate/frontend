@@ -59,7 +59,7 @@ function Dashboard() {
         <HStack fontSize={[24, 24, 30]}>
           <BiTargetLock color="red" />
           <Text as="b">
-            {user?.userName ? `@${user?.userName}` : user?.address}
+            {user?.userName ? `@${user?.userName}` : user?.formattedAddress}
           </Text>
         </HStack>
         <Box

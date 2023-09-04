@@ -6,24 +6,36 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
 } from '@chakra-ui/react';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { SlMagnifier } from 'react-icons/sl';
 import { BiLogInCircle } from 'react-icons/bi';
 import useWindowSize from '../hooks/useWindowSize';
 import { UserContext } from '../contexts/UserContext';
 import { User, UserContextType } from '../types/userTypes';
 import {
-  setItemToLocalStorage,
   LOCALSTORAGE_OBJECTS_NAMES,
   removeItemFromLocalStorage,
+  setItemToLocalStorage,
 } from '../utils/localStorageFunctions';
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
 } from '../contexts/ShowLoaderContext';
 import Logo from './Logo';
+import {
+  useAccount,
+  useEnsName,
+  useConnect,
+  useDisconnect,
+  useEnsAvatar,
+} from 'wagmi';
+import ConnectWalletButton from './ConnectWalletButton';
 
 function Navbar() {
   const windowsSize = useWindowSize();
@@ -32,33 +44,37 @@ function Navbar() {
     useContext(ShowLoaderContext);
   const onSearch = useCallback(() => {}, []);
 
-  const connect = useCallback(() => {
-    setShowLoader(true);
-    const loggedInUser: User = {
-      address: '0x11...d752',
-      userName: '',
-      profileImage: '',
-    };
-    setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
-    setUser(loggedInUser);
+  //WAGMI
+  const { address, isConnected, isDisconnected, isConnecting, isReconnecting } =
+    useAccount();
+  const { data: ensName } = useEnsName({ address });
+  const { data: ensAvatar } = useEnsAvatar({ name: ensName });
+  const { connect, connectors, error, isLoading, pendingConnector } =
+    useConnect();
+  const { disconnect } = useDisconnect();
 
-    setTimeout(() => {
-      setShowLoader(false);
-    }, 3000);
-  }, [setShowLoader, setUser]);
-
-  const disconnect = useCallback(() => {
-    removeItemFromLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER);
-    setUser(undefined);
-  }, [setUser]);
-
-  //   const buttonIcon = useMemo(() => {
-  //     return user ? <BiLogOutCircle /> : <BiLogInCircle />;
-  //   }, [user]);
-
-  //   const buttonText = useMemo(() => {
-  //     return user ? 'Disconnect Wallet' : 'Connect Wallet';
-  //   }, [user]);
+  useEffect(() => {
+    // console.log({ isConnected, isDisconnected, address, ensName, ensAvatar });
+    if (isConnected && !user && address) {
+      const a = address ?? '';
+      const loggedInUser: User = {
+        address: a,
+        formattedAddress: `${a.substring(0, 4)}...${a.substring(
+          a.length - 4,
+          a.length,
+        )}`,
+        userName: ensName ?? '',
+        profileImage: ensAvatar ?? '',
+      };
+      setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
+      setUser(loggedInUser);
+      // Aqui traer la data y setShowLoader(true)
+    }
+    if (isDisconnected) {
+      removeItemFromLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER);
+      setUser(undefined);
+    }
+  }, [address, ensAvatar, ensName, isConnected, isDisconnected, setUser, user]);
 
   const isLargeScreen = useMemo(() => {
     return windowsSize.width >= 768;
@@ -108,39 +124,43 @@ function Navbar() {
             // h="35px"
             h="45px"
             justifyContent="flex-start"
-            onClick={disconnect}
+            onClick={() => {
+              console.log('Disconnecting');
+              disconnect();
+            }}
           >
             <Avatar
-              //   size="full"
               h="100%"
-              //   w="35px"
               w="45px"
               name={user.userName}
-              //   backgroundColor={ADJUSTANT_GREEN}
+              src={user.profileImage}
               fontSize="3xl"
               color="white"
             />
 
             {isLargeScreen ? (
-              <Text px={1} as="b">
-                {user?.userName ? `@${user?.userName}` : user?.address}
+              <Text
+                px={1}
+                as="b"
+                // fontSize="sm"
+                // height="inherit"
+                // textOverflow="ellipsis"
+                // overflow="hidden"
+                // noOfLines={1}
+              >
+                {user?.userName ? `@${user?.userName}` : user?.formattedAddress}
               </Text>
             ) : null}
           </Button>
         ) : (
-          <Button
-            variant="solid"
-            borderRadius="60px"
-            background="linear-gradient(90deg, #F30F21 0%, #9205FD 100%)"
-            paddingY="16px"
-            paddingX={['12px', '12px', '40px']}
-            color="white"
-            fontSize="14px"
-            h="45px"
-            onClick={connect}
-          >
-            {isLargeScreen ? 'Connect Wallet' : <BiLogInCircle />}
-          </Button>
+          <ConnectWalletButton
+            connectors={connectors}
+            isLoading={isLoading}
+            connect={connect}
+            pendingConnector={pendingConnector}
+            isLargeScreen={isLargeScreen}
+            responsive
+          />
         )}
       </Box>
     </HStack>

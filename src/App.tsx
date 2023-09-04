@@ -13,6 +13,9 @@ import { ShowLoaderContext } from './contexts/ShowLoaderContext';
 import Loader from './components/Loader';
 import LandingPage from './components/LandingPage';
 
+import { WagmiConfig } from 'wagmi';
+import wagmiConfig from './wagmiConfig';
+
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [showLoader, setShowLoader] = useState<boolean>(false);
@@ -26,24 +29,26 @@ function App() {
   }, []);
 
   return (
-    <ChakraProvider theme={theme}>
-      <UserContext.Provider value={{ user, setUser }}>
-        <ShowLoaderContext.Provider value={{ showLoader, setShowLoader }}>
-          <Navbar />
-          <Box
-            className="global-font-face"
-            backgroundColor="#F7F8FC"
-            overflowY="auto"
-            w="100%"
-            height="calc(100vh - 70px)"
-          >
-            {user && <Dashboard />}
-            {!user && <LandingPage />}
-          </Box>
-          {showLoader && <Loader />}
-        </ShowLoaderContext.Provider>
-      </UserContext.Provider>
-    </ChakraProvider>
+    <WagmiConfig config={wagmiConfig}>
+      <ChakraProvider theme={theme}>
+        <UserContext.Provider value={{ user, setUser }}>
+          <ShowLoaderContext.Provider value={{ showLoader, setShowLoader }}>
+            <Navbar />
+            <Box
+              className="global-font-face"
+              backgroundColor="#F7F8FC"
+              overflowY="auto"
+              w="100%"
+              height="calc(100vh - 66px)"
+            >
+              {user && <Dashboard />}
+              {!user && <LandingPage />}
+            </Box>
+            {showLoader && <Loader />}
+          </ShowLoaderContext.Provider>
+        </UserContext.Provider>
+      </ChakraProvider>{' '}
+    </WagmiConfig>
   );
 }
 
