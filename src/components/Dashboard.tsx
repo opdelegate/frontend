@@ -1,5 +1,5 @@
 import { Box, Divider, HStack, Heading, Stack, Text } from '@chakra-ui/react';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { UserContextType } from '../types/userTypes';
 import { BiTargetLock } from 'react-icons/bi';
@@ -8,12 +8,25 @@ import { OPDELEGATES_PURPLE, OPDELEGATES_RED } from '../themes';
 import { CustomAreaChart } from './CustomAreaChart';
 import { CustomTable } from './CustomTable';
 import { CustomBarsChart } from './CustomBarsChart';
+import { useParams } from 'react-router-dom';
+import { getOPDelegated } from '../services/opDelegates';
+import {
+  ShowLoaderContext,
+  ShowLoaderContextType,
+} from '../contexts/ShowLoaderContext';
+import { OPDelegatedResponse } from '../types/responsesTypes';
+import { formatAddress } from '../utils/functions';
 
 const CHART_HEIGHT = '330';
-function Dashboard() {
-  const { user, setUser }: UserContextType = useContext(UserContext);
 
-  const [opDelegatedData, setPpDelegatedData] = useState([
+function Dashboard() {
+  const { userAddress } = useParams();
+  const { user, setUser }: UserContextType = useContext(UserContext);
+  const { setShowLoader }: ShowLoaderContextType =
+    useContext(ShowLoaderContext);
+
+  /////////////////////////////////////
+  const [opDelegatedDataFake] = useState([
     { month: 'Feb', date: '08/03/2023', quantity: 10, hour: '6am' },
     { month: 'Feb', date: '08/03/2023', quantity: 20, hour: '7am' },
     { month: 'Feb', date: '08/03/2023', quantity: 30, hour: '8am' },
@@ -46,6 +59,32 @@ function Dashboard() {
     { label: '+5k', quantity: 35 },
     { label: '+10k', quantity: 40 },
   ]);
+  ///////////////////////////////////////////
+
+  const [opDelegatedData, setOpDelegatedData] = useState<OPDelegatedResponse[]>(
+    [],
+  );
+
+  const fetchUserData = useCallback(
+    async (address: string) => {
+      setShowLoader(true);
+      const response = await getOPDelegated(address);
+      if (response.success) {
+        const data: OPDelegatedResponse[] = response.data;
+        // console.log(data.filter((d) => d.newBalance > 0));
+        setOpDelegatedData(data);
+      }
+      setShowLoader(false);
+    },
+    [setShowLoader],
+  );
+
+  useEffect(() => {
+    if (userAddress || user?.address) {
+      const address = userAddress ?? user?.address ?? '';
+      fetchUserData(address);
+    }
+  }, [fetchUserData, user?.address, userAddress]);
 
   return (
     <Box px={[4, 4, 12, 20]}>
@@ -56,10 +95,15 @@ function Dashboard() {
         direction={['column', 'column', 'row']}
         gap={4}
       >
+        {/* TO-DO: fix data displaying */}
         <HStack fontSize={[24, 24, 30]}>
           <BiTargetLock color="red" />
           <Text as="b">
-            {user?.userName ? `@${user?.userName}` : user?.formattedAddress}
+            {userAddress
+              ? formatAddress(userAddress)
+              : user?.userName
+              ? `@${user?.userName}`
+              : user?.formattedAddress}
           </Text>
         </HStack>
         <Box
@@ -74,7 +118,7 @@ function Dashboard() {
             boxShadow="0px 4px 10px 0px rgba(0, 0, 0, 0.1)"
           >
             <Text fontSize={[16, 16, 20]}>
-              <b>86,000 OP</b> delegated from <b>462</b> delegators
+              <b>--86,000-- OP</b> delegated from <b>++462</b> delegators
             </Text>
           </HStack>
         </Box>
@@ -102,7 +146,7 @@ function Dashboard() {
             </Box>
             <Box w="100%" h={CHART_HEIGHT}>
               <CustomAreaChart
-                data={opDelegatedData}
+                data={opDelegatedDataFake}
                 label="OP Delegated"
                 themeColor={OPDELEGATES_RED}
               />
@@ -115,17 +159,17 @@ function Dashboard() {
               <Heading mb={4} fontSize={24}>
                 Delegators
               </Heading>
-              <Box h={CHART_HEIGHT}>
+              {/* <Box h={CHART_HEIGHT}>
                 <CustomLineChart
-                  data={opDelegatedData}
+                  data={opDelegatedDataFake}
                   themeColor={OPDELEGATES_PURPLE}
                 />
-              </Box>
+              </Box> */}
             </Box>
             <Box w="100%" h={CHART_HEIGHT}>
               <CustomAreaChart
                 label="Delegators"
-                data={opDelegatedData}
+                data={opDelegatedDataFake}
                 themeColor={OPDELEGATES_PURPLE}
               />
             </Box>

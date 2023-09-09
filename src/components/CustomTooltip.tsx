@@ -1,4 +1,5 @@
 import { HStack, Text, Box } from '@chakra-ui/react';
+import { formatNumber } from '../utils/functions';
 
 export const CustomTooltip = ({ payload, active }: any) => {
   //   console.log(active, payload);
@@ -16,7 +17,7 @@ export const CustomTooltip = ({ payload, active }: any) => {
         </HStack>
         <HStack justifyContent="space-between">
           <Text color="rgba(0, 0, 0, 0.7)">Quantity</Text>
-          <Text as="b">{payload?.[0]?.payload?.quantity}</Text>
+          <Text as="b">{formatNumber(payload?.[0]?.payload?.quantity)}</Text>
         </HStack>
       </Box>
     );

@@ -6,15 +6,10 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
   Text,
 } from '@chakra-ui/react';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SlMagnifier } from 'react-icons/sl';
-import { BiLogInCircle } from 'react-icons/bi';
 import useWindowSize from '../hooks/useWindowSize';
 import { UserContext } from '../contexts/UserContext';
 import { User, UserContextType } from '../types/userTypes';
@@ -23,10 +18,6 @@ import {
   removeItemFromLocalStorage,
   setItemToLocalStorage,
 } from '../utils/localStorageFunctions';
-import {
-  ShowLoaderContext,
-  ShowLoaderContextType,
-} from '../contexts/ShowLoaderContext';
 import Logo from './Logo';
 import {
   useAccount,
@@ -36,13 +27,17 @@ import {
   useEnsAvatar,
 } from 'wagmi';
 import ConnectWalletButton from './ConnectWalletButton';
+import { useNavigate } from 'react-router-dom';
+import { GLOBAL_ROUTES } from '../App';
+import { formatAddress } from '../utils/functions';
 
 function Navbar() {
   const windowsSize = useWindowSize();
+  const navigate = useNavigate();
   const { user, setUser }: UserContextType = useContext(UserContext);
-  const { showLoader, setShowLoader }: ShowLoaderContextType =
-    useContext(ShowLoaderContext);
-  const onSearch = useCallback(() => {}, []);
+  const [searcherValue, setSearcherValue] = useState(
+    '0x6EdA5aCafF7F5964E1EcC3FD61C62570C186cA0C',
+  );
 
   //WAGMI
   const { address, isConnected, isDisconnected, isConnecting, isReconnecting } =
@@ -53,21 +48,25 @@ function Navbar() {
     useConnect();
   const { disconnect } = useDisconnect();
 
+  //
+  const onSearch = useCallback(() => {
+    console.log(searcherValue);
+    if (searcherValue) navigate(`${GLOBAL_ROUTES.ROOT}${searcherValue}`);
+  }, [navigate, searcherValue]);
+
   useEffect(() => {
     // console.log({ isConnected, isDisconnected, address, ensName, ensAvatar });
     if (isConnected && !user && address) {
       const a = address ?? '';
       const loggedInUser: User = {
         address: a,
-        formattedAddress: `${a.substring(0, 4)}...${a.substring(
-          a.length - 4,
-          a.length,
-        )}`,
+        formattedAddress: formatAddress(a),
         userName: ensName ?? '',
         profileImage: ensAvatar ?? '',
       };
       setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
       setUser(loggedInUser);
+
       // Aqui traer la data y setShowLoader(true)
     }
     if (isDisconnected) {
@@ -89,7 +88,9 @@ function Navbar() {
       boxShadow="0px 4px 10px 0px rgba(95, 95, 95, 0.05)"
       position="relative"
     >
-      <Logo size={[40, 40, 56]} />
+      <Box cursor="pointer" onClick={() => navigate(GLOBAL_ROUTES.ROOT)}>
+        <Logo size={[40, 40, 56]} />
+      </Box>
 
       <Box display="flex" gap={[2, 2, 6]} alignItems="center">
         <InputGroup size={['sm', 'sm', 'md']}>
@@ -99,6 +100,10 @@ function Navbar() {
             _focusVisible={{ borderColor: 'none', boxShadow: 'none' }}
             placeholder="Search address"
             color="gray.500"
+            value={searcherValue}
+            onChange={(e) => {
+              setSearcherValue(e.target.value);
+            }}
           />
           <InputRightElement
             onClick={onSearch}

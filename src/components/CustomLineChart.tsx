@@ -9,10 +9,18 @@ import {
 } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 import { Box, Tab, TabList, Tabs } from '@chakra-ui/react';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { OPDELEGATES_RED } from '../themes';
+import { OPDelegatedResponse } from '../types/responsesTypes';
+import { formatDate, formatNumber } from '../utils/functions';
 
-export const CustomLineChartWrapper = ({ children }: { children: any }) => {
+export const CustomLineChartWrapper = ({
+  children,
+  setSelectedTab,
+}: {
+  children: any;
+  setSelectedTab: React.Dispatch<React.SetStateAction<number>>;
+}) => {
   const tabsRef = useRef<HTMLDivElement | null>(null);
   const tabsHeight = useMemo(() => {
     // console.log(tabsRef?.current?.clientHeight);
@@ -34,11 +42,9 @@ export const CustomLineChartWrapper = ({ children }: { children: any }) => {
         padding={0}
         mb={4}
         ref={tabsRef}
-        //   color="red"
+        onChange={(index) => setSelectedTab(index)}
       >
-        <TabList
-        // _selected={{ color: 'black', fontWeight: 700 }}
-        >
+        <TabList>
           <Tab
             _selected={{
               color: OPDELEGATES_RED,
@@ -80,12 +86,41 @@ export const CustomLineChart = ({
   data,
   themeColor,
 }: {
-  data: any[];
+  data: OPDelegatedResponse[];
   themeColor: string;
 }) => {
+  const [selectedTab, setSelectedTab] = useState<number>(0);
+  const filteredAndFormattedData = useMemo(() => {
+    // console.log(today.getFullYear)
+    const daysToSlice = selectedTab === 0 ? 7 : selectedTab === 1 ? 31 : 365;
+    const d = data.slice(-daysToSlice).map((d) => {
+      const date = new Date(d.evt_block_time);
+      const config: Intl.DateTimeFormatOptions = {
+        weekday: selectedTab === 0 ? 'short' : undefined,
+        year: undefined,
+        month: selectedTab === 2 ? 'numeric' : undefined,
+        day: selectedTab === 0 ? undefined : 'numeric',
+      };
+      return {
+        label: formatDate(d.evt_block_time, config),
+        quantity: d.newBalance,
+        date: formatDate(d.evt_block_time),
+      };
+    });
+    // console.log(d);
+    return d;
+    // { month: 'Feb', date: '08/03/2023', quantity: 10, hour: '6am' },
+  }, [data, selectedTab]);
+
+  const longestLabelLength = useMemo(() => {
+    return filteredAndFormattedData
+      .map((c) => c.quantity.toString())
+      .reduce((acc, cur) => (cur.length > acc ? cur.length : acc), 0);
+  }, [filteredAndFormattedData]);
+
   return (
-    <CustomLineChartWrapper>
-      <LineChart data={data}>
+    <CustomLineChartWrapper setSelectedTab={setSelectedTab}>
+      <LineChart data={filteredAndFormattedData}>
         <CartesianGrid stroke="#ccc" strokeDasharray="3" vertical={false} />
         <Line
           type="monotone"
@@ -94,18 +129,21 @@ export const CustomLineChart = ({
           strokeWidth={2}
         />
         <XAxis
-          dataKey="month"
           //   allowDuplicatedCategory={false}
+          dataKey="label"
           tickLine={{ opacity: 0 }}
           tick={{ fill: 'black', fontWeight: 500 }}
           axisLine={{ stroke: themeColor }}
           tickMargin={15}
+          angle={selectedTab === 2 ? -45 : 0}
+          height={35}
         />
         <YAxis
           strokeOpacity={0}
-          tick={{ fill: 'black', fontWeight: 500 }}
-          tickMargin={15}
-          width={35}
+          tick={{ fill: 'black', fontWeight: 500, fontSize: 14 }}
+          width={longestLabelLength * 10}
+          domain={['dataMin - 100', 'dataMax + 100']}
+          tickFormatter={(value) => formatNumber(value)}
         />
         <Tooltip active content={<CustomTooltip />} />
       </LineChart>

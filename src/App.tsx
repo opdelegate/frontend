@@ -15,6 +15,11 @@ import LandingPage from './components/LandingPage';
 
 import { WagmiConfig } from 'wagmi';
 import wagmiConfig from './wagmiConfig';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+
+export enum GLOBAL_ROUTES {
+  ROOT = '/',
+}
 
 function App() {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -33,17 +38,40 @@ function App() {
       <ChakraProvider theme={theme}>
         <UserContext.Provider value={{ user, setUser }}>
           <ShowLoaderContext.Provider value={{ showLoader, setShowLoader }}>
-            <Navbar />
-            <Box
-              className="global-font-face"
-              backgroundColor="#F7F8FC"
-              overflowY="auto"
-              w="100%"
-              height="calc(100vh - 66px)"
-            >
-              {user && <Dashboard />}
-              {!user && <LandingPage />}
-            </Box>
+            <Router>
+              <Navbar />
+              <Box
+                className="global-font-face"
+                backgroundColor="#F7F8FC"
+                overflowY="auto"
+                w="100%"
+                height="calc(100vh - 66px)"
+              >
+                {/* {user && <Dashboard />}
+              {!user && <LandingPage />} */}
+
+                <Routes>
+                  {!user && (
+                    <Route
+                      path={GLOBAL_ROUTES.ROOT}
+                      element={<LandingPage />}
+                    />
+                  )}
+                  {user && (
+                    <>
+                      <Route
+                        path={`${GLOBAL_ROUTES.ROOT}:userAddress`}
+                        element={<Dashboard />}
+                      />
+                      <Route
+                        path={GLOBAL_ROUTES.ROOT}
+                        element={<Dashboard />}
+                      />
+                    </>
+                  )}
+                </Routes>
+              </Box>
+            </Router>
             {showLoader && <Loader />}
           </ShowLoaderContext.Provider>
         </UserContext.Provider>
