@@ -40,7 +40,7 @@ export const CustomAreaChartWrapper = ({
     >
       <HStack ref={headref} justifyContent="space-between" mb={3} py={2}>
         <Text as="b" fontSize="20px" color="black">
-          Daily Data
+          Daily Change
         </Text>
         <Text fontSize="14px" color="rgba(0, 0, 0, 0.6)">
           {label}

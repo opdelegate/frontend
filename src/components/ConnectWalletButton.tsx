@@ -50,7 +50,7 @@ const ConnectWalletButton = ({
             as="b"
           >
             {/* <Text as="b"> */}
-            {connector.name}
+            {connector.name === 'Injected' ? 'Browser Wallet' : connector.name}
             {!connector.ready && ' (unsupported)'}
             {isLoading &&
               connector.id === pendingConnector?.id &&

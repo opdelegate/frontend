@@ -6,6 +6,10 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
 } from '@chakra-ui/react';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -30,13 +34,15 @@ import ConnectWalletButton from './ConnectWalletButton';
 import { useNavigate } from 'react-router-dom';
 import { GLOBAL_ROUTES } from '../App';
 import { formatAddress } from '../utils/functions';
+import { BiLogInCircle } from 'react-icons/bi';
 
 function Navbar() {
   const windowsSize = useWindowSize();
   const navigate = useNavigate();
   const { user, setUser }: UserContextType = useContext(UserContext);
   const [searcherValue, setSearcherValue] = useState(
-    '0x6EdA5aCafF7F5964E1EcC3FD61C62570C186cA0C',
+    // '0x6EdA5aCafF7F5964E1EcC3FD61C62570C186cA0C',
+    '',
   );
 
   //WAGMI
@@ -57,6 +63,7 @@ function Navbar() {
   useEffect(() => {
     // console.log({ isConnected, isDisconnected, address, ensName, ensAvatar });
     if (isConnected && !user && address) {
+      console.log('A');
       const a = address ?? '';
       const loggedInUser: User = {
         address: a,
@@ -66,14 +73,24 @@ function Navbar() {
       };
       setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
       setUser(loggedInUser);
-
-      // Aqui traer la data y setShowLoader(true)
+      navigate(GLOBAL_ROUTES.ROOT);
     }
-    if (isDisconnected) {
+    if (isDisconnected && user) {
+      console.log('B');
       removeItemFromLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER);
       setUser(undefined);
+      navigate(GLOBAL_ROUTES.ROOT);
     }
-  }, [address, ensAvatar, ensName, isConnected, isDisconnected, setUser, user]);
+  }, [
+    address,
+    ensAvatar,
+    ensName,
+    isConnected,
+    isDisconnected,
+    navigate,
+    setUser,
+    user,
+  ]);
 
   const isLargeScreen = useMemo(() => {
     return windowsSize.width >= 768;
@@ -116,47 +133,58 @@ function Navbar() {
             </Box>
           </InputRightElement>
         </InputGroup>
-        {user ? (
-          <Button
-            variant="solid"
-            borderRadius="60px"
-            background="#F8F8F8"
-            gap={1}
-            color="black"
-            fontSize="14px"
-            padding={isLargeScreen ? '0 12px 0 0' : 0}
-            minW="141px"
-            // h="35px"
-            h="45px"
-            justifyContent="flex-start"
-            onClick={() => {
-              console.log('Disconnecting');
-              disconnect();
-            }}
-          >
-            <Avatar
-              h="100%"
-              w="45px"
-              name={user.userName}
-              src={user.profileImage}
-              fontSize="3xl"
-              color="white"
-            />
 
-            {isLargeScreen ? (
-              <Text
-                px={1}
-                as="b"
-                // fontSize="sm"
-                // height="inherit"
-                // textOverflow="ellipsis"
-                // overflow="hidden"
-                // noOfLines={1}
+        {user ? (
+          <Menu>
+            <MenuButton as={Box} cursor="pointer">
+              <Button
+                variant="solid"
+                borderRadius="60px"
+                background="#F8F8F8"
+                gap={1}
+                color="black"
+                fontSize="14px"
+                padding={isLargeScreen ? '0 12px 0 0' : 0}
+                minW="141px"
+                // h="35px"
+                h="45px"
+                justifyContent="flex-start"
+                onClick={() => {
+                  console.log('Disconnecting');
+                  disconnect();
+                }}
               >
-                {user?.userName ? `@${user?.userName}` : user?.formattedAddress}
-              </Text>
-            ) : null}
-          </Button>
+                <Avatar
+                  h="100%"
+                  w="45px"
+                  name={user.userName}
+                  src={user.profileImage}
+                  fontSize="3xl"
+                  color="white"
+                />
+
+                {isLargeScreen ? (
+                  <Text px={1} as="b">
+                    {user?.userName
+                      ? `@${user?.userName}`
+                      : user?.formattedAddress}
+                  </Text>
+                ) : null}
+              </Button>
+            </MenuButton>
+            <MenuList zIndex={2}>
+              <MenuItem
+                onClick={() => {
+                  console.log('Disconnecting');
+                  disconnect();
+                }}
+                cursor="pointer"
+                as="b"
+              >
+                Disconnect
+              </MenuItem>
+            </MenuList>
+          </Menu>
         ) : (
           <ConnectWalletButton
             connectors={connectors}

@@ -52,10 +52,16 @@ function App() {
 
                 <Routes>
                   {!user && (
-                    <Route
-                      path={GLOBAL_ROUTES.ROOT}
-                      element={<LandingPage />}
-                    />
+                    <>
+                      <Route
+                        path={GLOBAL_ROUTES.ROOT}
+                        element={<LandingPage />}
+                      />
+                      <Route
+                        path={`${GLOBAL_ROUTES.ROOT}:userAddress`}
+                        element={<Dashboard />}
+                      />
+                    </>
                   )}
                   {user && (
                     <>

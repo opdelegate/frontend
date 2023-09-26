@@ -16,12 +16,15 @@ import {
 } from '../contexts/ShowLoaderContext';
 import { OPDelegatedResponse } from '../types/responsesTypes';
 import { formatAddress } from '../utils/functions';
+import { fetchEnsName } from 'wagmi/actions';
 
 const CHART_HEIGHT = '330';
 
 function Dashboard() {
   const { userAddress } = useParams();
   const { user, setUser }: UserContextType = useContext(UserContext);
+  const [searchedAddressEnsName, setSearchedAddressEnsName] = useState('');
+
   const { setShowLoader }: ShowLoaderContextType =
     useContext(ShowLoaderContext);
 
@@ -67,24 +70,39 @@ function Dashboard() {
 
   const fetchUserData = useCallback(
     async (address: string) => {
+      console.log('FETCHING DATA');
       setShowLoader(true);
       const response = await getOPDelegated(address);
       if (response.success) {
         const data: OPDelegatedResponse[] = response.data;
         // console.log(data.filter((d) => d.newBalance > 0));
         setOpDelegatedData(data);
+      } else {
+        setOpDelegatedData([]);
       }
       setShowLoader(false);
     },
     [setShowLoader],
   );
 
+  const retrieveEnsName = useCallback(async (address: string) => {
+    const ensName = await fetchEnsName({
+      address: address as `0x${string}`,
+    });
+    if (ensName) setSearchedAddressEnsName(ensName);
+  }, []);
+
   useEffect(() => {
     if (userAddress || user?.address) {
       const address = userAddress ?? user?.address ?? '';
       fetchUserData(address);
+
+      //If the address introduced exists
+      if (userAddress) {
+        retrieveEnsName(userAddress);
+      }
     }
-  }, [fetchUserData, user?.address, userAddress]);
+  }, [fetchUserData, retrieveEnsName, user?.address, userAddress]);
 
   return (
     <Box px={[4, 4, 12, 20]}>
@@ -99,8 +117,14 @@ function Dashboard() {
         <HStack fontSize={[24, 24, 30]}>
           <BiTargetLock color="red" />
           <Text as="b">
-            {userAddress
+            {/* {userAddress
               ? formatAddress(userAddress)
+              : user?.userName
+              ? `@${user?.userName}`
+              : user?.formattedAddress} */}
+
+            {userAddress
+              ? searchedAddressEnsName ?? formatAddress(userAddress)
               : user?.userName
               ? `@${user?.userName}`
               : user?.formattedAddress}
@@ -118,7 +142,7 @@ function Dashboard() {
             boxShadow="0px 4px 10px 0px rgba(0, 0, 0, 0.1)"
           >
             <Text fontSize={[16, 16, 20]}>
-              <b>--86,000-- OP</b> delegated from <b>++462</b> delegators
+              <b>86,000 OP</b> delegated from <b>462</b> delegators
             </Text>
           </HStack>
         </Box>
@@ -159,12 +183,12 @@ function Dashboard() {
               <Heading mb={4} fontSize={24}>
                 Delegators
               </Heading>
-              {/* <Box h={CHART_HEIGHT}>
+              <Box h={CHART_HEIGHT}>
                 <CustomLineChart
-                  data={opDelegatedDataFake}
+                  data={opDelegatedData}
                   themeColor={OPDELEGATES_PURPLE}
                 />
-              </Box> */}
+              </Box>
             </Box>
             <Box w="100%" h={CHART_HEIGHT}>
               <CustomAreaChart
