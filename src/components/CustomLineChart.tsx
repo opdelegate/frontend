@@ -6,13 +6,13 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-} from 'recharts';
-import { CustomTooltip } from './CustomTooltip';
-import { Box, Tab, TabList, Tabs } from '@chakra-ui/react';
-import { useMemo, useRef, useState } from 'react';
-import { OPDELEGATES_RED } from '../themes';
-import { OPDelegatedResponse } from '../types/responsesTypes';
-import { formatDate, formatNumber } from '../utils/functions';
+} from "recharts";
+import { CustomTooltip } from "./CustomTooltip";
+import { Box, Tab, TabList, Tabs } from "@chakra-ui/react";
+import { useMemo, useRef, useState } from "react";
+import { OPDELEGATES_RED } from "../themes";
+import { OPDelegatedResponse } from "../types/responsesTypes";
+import { formatDate, formatNumber } from "../utils/functions";
 
 export const CustomLineChartWrapper = ({
   children,
@@ -96,10 +96,10 @@ export const CustomLineChart = ({
     const d = data.slice(-daysToSlice).map((d) => {
       const date = new Date(d.evt_block_time);
       const config: Intl.DateTimeFormatOptions = {
-        weekday: selectedTab === 0 ? 'short' : undefined,
+        weekday: selectedTab === 0 ? "short" : undefined,
         year: undefined,
-        month: selectedTab === 2 ? 'numeric' : undefined,
-        day: selectedTab === 0 ? undefined : 'numeric',
+        month: selectedTab === 2 ? "numeric" : undefined,
+        day: selectedTab === 0 ? undefined : "numeric",
       };
       return {
         label: formatDate(d.evt_block_time, config),
@@ -132,7 +132,7 @@ export const CustomLineChart = ({
           //   allowDuplicatedCategory={false}
           dataKey="label"
           tickLine={{ opacity: 0 }}
-          tick={{ fill: 'black', fontWeight: 500 }}
+          tick={{ fill: "black", fontWeight: 500 }}
           axisLine={{ stroke: themeColor }}
           tickMargin={15}
           angle={selectedTab === 2 ? -45 : 0}
@@ -140,9 +140,9 @@ export const CustomLineChart = ({
         />
         <YAxis
           strokeOpacity={0}
-          tick={{ fill: 'black', fontWeight: 500, fontSize: 14 }}
+          tick={{ fill: "black", fontWeight: 500, fontSize: 14 }}
           width={longestLabelLength * 10}
-          domain={['dataMin - 100', 'dataMax + 100']}
+          domain={["dataMin - 100", "dataMax + 100"]}
           tickFormatter={(value) => formatNumber(value)}
         />
         <Tooltip active content={<CustomTooltip />} />

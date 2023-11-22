@@ -9,10 +9,10 @@ import {
   Area,
   AreaChart,
   ComposedChart,
-} from 'recharts';
-import { CustomTooltip } from './CustomTooltip';
-import { Box, HStack, Text } from '@chakra-ui/react';
-import { useMemo, useRef } from 'react';
+} from "recharts";
+import { CustomTooltip } from "./CustomTooltip";
+import { Box, HStack, Text } from "@chakra-ui/react";
+import { useMemo, useRef } from "react";
 
 export const CustomAreaChartWrapper = ({
   children,
@@ -82,23 +82,23 @@ export const CustomAreaChart = ({
         /> */}
         <Area
           //   type="monotone"
-          dataKey="quantity"
+          dataKey="change"
           stroke={themeColor}
           //   stroke={'transparent'}
           fill={`url(#color${themeColor})`}
           strokeWidth={2}
         />
         <XAxis
-          dataKey="hour"
+          dataKey="date"
           //   allowDuplicatedCategory={false}
           tickLine={{ opacity: 0 }}
-          tick={{ fill: 'black', fontWeight: 500 }}
+          tick={{ fill: "black", fontWeight: 500 }}
           axisLine={{ stroke: themeColor }}
           tickMargin={15}
         />
         <YAxis
           strokeOpacity={0}
-          tick={{ fill: 'black', fontWeight: 500 }}
+          tick={{ fill: "black", fontWeight: 500 }}
           tickMargin={15}
           width={35}
         />
