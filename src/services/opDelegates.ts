@@ -1,4 +1,4 @@
-import Axios from 'axios';
+import Axios from "axios";
 
 interface CustomResponse {
   success: boolean;
@@ -8,26 +8,28 @@ interface CustomResponse {
 
 const axios = Axios.create({
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     // 'X-Api-Key': process.env.REACT_APP_X_API_KEY ?? '',
   },
 });
 
 export const getOPDelegated = async (
-  address: string,
+  address: string
 ): Promise<CustomResponse> => {
   try {
+    // percentage encoded address
+    address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${process.env.REACT_APP_API_URL}/daily_data_api_opdelegates?delegate=${address}`,
+      `${process.env.REACT_APP_API_URL}/api?delegate=${address}`
     );
 
     if (responseData?.length > 0)
       return {
         success: true,
-        message: 'Data Retrieved',
+        message: "Data Retrieved",
         data: responseData,
       };
-    else throw new Error('No data retrieved');
+    else throw new Error("No data retrieved");
   } catch (error: any) {
     return {
       success: false,
