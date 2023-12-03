@@ -13,6 +13,7 @@ const axios = Axios.create({
   },
 });
 
+// @Greg the delegates API endpoint is at `${process.env.BASE_URL}/get_daily_delegates/api?delegate=${address}`
 export const getOPDelegated = async (
   address: string
 ): Promise<CustomResponse> => {
@@ -20,7 +21,7 @@ export const getOPDelegated = async (
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${process.env.REACT_APP_API_URL}/api?delegate=${address}`
+      `${process.env.BASE_URL}/get_daily_data/api?delegate=${address}`
     );
 
     if (responseData?.length > 0)
