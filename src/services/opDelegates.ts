@@ -21,7 +21,7 @@ export const getOPDelegated = async (
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${process.env.BASE_URL}/get_daily_data/api?delegate=${address}`
+      `${process.env.REACT_APP_BASE_URL}/get_daily_data/api?delegate=${address}`
     );
 
     if (responseData?.length > 0)
