@@ -4,20 +4,18 @@ import { UserContext } from "../contexts/UserContext";
 import { UserContextType } from "../types/userTypes";
 import { BiTargetLock } from "react-icons/bi";
 import { CustomLineChart } from "./CustomLineChart";
+import { CustomDelegatorsLineChart } from './CustomDelegatorsLineChart';
 import { OPDELEGATES_PURPLE, OPDELEGATES_RED } from "../themes";
 import { CustomAreaChart } from "./CustomAreaChart";
 import { CustomTable } from "./CustomTable";
 import { CustomBarsChart } from "./CustomBarsChart";
 import { useParams } from "react-router-dom";
-import { getOPDelegated } from "../services/opDelegates";
+import { getOPDelegated, getNumDelegators } from "../services/opDelegates";
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
 } from "../contexts/ShowLoaderContext";
-import {
-  OPDelegatedDailyChange,
-  OPDelegatedResponse,
-} from "../types/responsesTypes";
+import { OPDelegatedResponse, OPDelegatedDailyChange, NumDelegatorsResponse } from '../types/responsesTypes';
 import { formatAddress } from "../utils/functions";
 import { fetchEnsName } from "wagmi/actions";
 
@@ -74,49 +72,67 @@ function Dashboard() {
     OPDelegatedDailyChange[]
   >([]);
 
+  const [numDelegatorsData, setNumDelegatorsData] = useState<NumDelegatorsResponse[]>([]);
+
   const fetchUserData = useCallback(
     async (address: string) => {
       console.log("FETCHING DATA");
       setShowLoader(true);
-      const response = await getOPDelegated(address);
-      if (response.success) {
-        const data: OPDelegatedResponse[] = response.data;
-        // console.log(data.filter((d) => d.newBalance > 0));
-        setOpDelegatedData(data);
-        // calculate daily changes from data
-        const dailyChanges = data.reduce<OPDelegatedDailyChange[]>(
-          (acc, curr, index, array) => {
-            if (index === 0) {
-              return acc;
-            } else {
-              const prev = array[index - 1];
-              const currDate = new Date(curr.evt_block_time);
-              const prevDate = new Date(prev.evt_block_time);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime()
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.newBalance - prev.newBalance;
-              const changePerDay = change / diffDays;
-              return [
-                ...acc,
-                {
-                  date: curr.evt_block_time,
-                  change: changePerDay,
-                },
-              ];
-            }
-          },
-          [] as OPDelegatedDailyChange[]
-        );
-        setDelegatedDailyChange(dailyChanges);
-      } else {
-        setOpDelegatedData([]);
+      try {
+        const opDelegatedResponse = await getOPDelegated(address);
+        const numDelegatorsResponse = await getNumDelegators(address);
+  
+        if (opDelegatedResponse.success) {
+          const data: OPDelegatedResponse[] = opDelegatedResponse.data;
+          setOpDelegatedData(data);
+  
+          const dailyChanges = data.reduce<OPDelegatedDailyChange[]>(
+            (acc, curr, index, array) => {
+              if (index === 0) {
+                return acc;
+              } else {
+                const prev = array[index - 1];
+                const currDate = new Date(curr.evt_block_time);
+                const prevDate = new Date(prev.evt_block_time);
+                const diffTime = Math.abs(
+                  currDate.getTime() - prevDate.getTime()
+                );
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const change = curr.newBalance - prev.newBalance;
+                const changePerDay = change / diffDays;
+                return [
+                  ...acc,
+                  {
+                    date: curr.evt_block_time,
+                    change: changePerDay,
+                  },
+                ];
+              }
+            },
+            [] as OPDelegatedDailyChange[]
+          );
+          setDelegatedDailyChange(dailyChanges);
+        } else {
+          setOpDelegatedData([]);
+        }
+  
+        if (numDelegatorsResponse.success) {
+          setNumDelegatorsData(numDelegatorsResponse.data);
+          console.log(numDelegatorsData); // This will log the updated state
+        } else {
+          // Optionally handle error for numDelegatorsResponse
+          console.error("Error fetching num delegators data: ", numDelegatorsResponse.message);
+        }
+      } catch (error) {
+        console.error("Error in fetchUserData: ", error);
+        // Optionally handle error
+      } finally {
+        setShowLoader(false);
       }
-      setShowLoader(false);
     },
     [setShowLoader]
   );
+  
 
   const retrieveEnsName = useCallback(async (address: string) => {
     const ensName = await fetchEnsName({
@@ -217,9 +233,9 @@ function Dashboard() {
                 Delegators
               </Heading>
               <Box h={CHART_HEIGHT}>
-                <CustomLineChart
-                  data={opDelegatedData}
-                  themeColor={OPDELEGATES_PURPLE}
+                <CustomDelegatorsLineChart
+                  data={numDelegatorsData}
+                  themeColor={OPDELEGATES_PURPLE} // Or any other color you prefer
                 />
               </Box>
             </Box>

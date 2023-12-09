@@ -7,3 +7,9 @@ export interface OPDelegatedDailyChange {
   date: string;
   change: number;
 }
+
+export interface NumDelegatorsResponse {
+  day: string;
+  count: number;
+};
+

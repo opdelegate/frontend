@@ -13,7 +13,6 @@ const axios = Axios.create({
   },
 });
 
-// @Greg the delegates API endpoint is at `${process.env.BASE_URL}/get_daily_delegates/api?delegate=${address}`
 export const getOPDelegated = async (
   address: string
 ): Promise<CustomResponse> => {
@@ -22,6 +21,31 @@ export const getOPDelegated = async (
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
       `${process.env.REACT_APP_BASE_URL}/get_daily_data/api?delegate=${address}`
+    );
+
+    if (responseData?.length > 0)
+      return {
+        success: true,
+        message: "Data Retrieved",
+        data: responseData,
+      };
+    else throw new Error("No data retrieved");
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+export const getNumDelegators = async (
+  address: string
+): Promise<CustomResponse> => {
+  try {
+    // percentage encoded address
+    address = encodeURIComponent(address);
+    const { data: responseData } = await axios.get<[]>(
+      `${process.env.REACT_APP_BASE_URL}/get_daily_delegates/api?delegate=${address}`
     );
 
     if (responseData?.length > 0)
