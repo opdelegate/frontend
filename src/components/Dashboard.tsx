@@ -118,7 +118,6 @@ function Dashboard() {
   
         if (numDelegatorsResponse.success) {
           setNumDelegatorsData(numDelegatorsResponse.data);
-          console.log(numDelegatorsData); // This will log the updated state
         } else {
           // Optionally handle error for numDelegatorsResponse
           console.error("Error fetching num delegators data: ", numDelegatorsResponse.message);
@@ -152,6 +151,13 @@ function Dashboard() {
       }
     }
   }, [fetchUserData, retrieveEnsName, user?.address, userAddress]);
+
+  // Extract the last newBalance value from opDelegatedData
+  const lastOpDelegated = opDelegatedData[opDelegatedData.length - 1]?.newBalance || 0;
+
+  // Extract the last count value from numDelegatorsData
+  const lastNumDelegators = numDelegatorsData[numDelegatorsData.length - 1]?.count || 0;
+
 
   return (
     <Box px={[4, 4, 12, 20]}>
@@ -191,7 +197,7 @@ function Dashboard() {
             boxShadow="0px 4px 10px 0px rgba(0, 0, 0, 0.1)"
           >
             <Text fontSize={[16, 16, 20]}>
-              <b>86,000 OP</b> delegated from <b>462</b> delegators
+              <b>{lastOpDelegated.toLocaleString()} OP</b> delegated from <b>{lastNumDelegators.toLocaleString()}</b> delegators
             </Text>
           </HStack>
         </Box>
