@@ -10,7 +10,7 @@ import {
   AreaChart,
   ComposedChart,
 } from "recharts";
-import { CustomTooltip } from "./CustomTooltip";
+import { CumulativeOPDelegatedTooltip } from "./CumulativeOPDelegatedTooltip";
 import { Box, HStack, Text } from "@chakra-ui/react";
 import { useMemo, useRef } from "react";
 
@@ -102,7 +102,7 @@ export const CustomAreaChart = ({
           tickMargin={15}
           width={35}
         />
-        <Tooltip active content={<CustomTooltip />} />
+        <Tooltip active content={<CumulativeOPDelegatedTooltip />} />
       </ComposedChart>
     </CustomAreaChartWrapper>
   );

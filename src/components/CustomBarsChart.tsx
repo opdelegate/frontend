@@ -10,7 +10,7 @@ import {
   BarChart,
   ComposedChart,
 } from 'recharts';
-import { CustomTooltip } from './CustomTooltip';
+import { CumulativeOPDelegatedTooltip } from './CumulativeOPDelegatedTooltip';
 import { Box, HStack, Text } from '@chakra-ui/react';
 import { useMemo, useRef } from 'react';
 

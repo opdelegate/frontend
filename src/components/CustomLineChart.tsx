@@ -7,7 +7,7 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import { CustomTooltip } from "./CustomTooltip";
+import { CumulativeOPDelegatedTooltip } from "./CumulativeOPDelegatedTooltip";
 import { Box, Tab, TabList, Tabs } from "@chakra-ui/react";
 import { useMemo, useRef, useState } from "react";
 import { OPDELEGATES_RED } from "../themes";
@@ -145,7 +145,7 @@ export const CustomLineChart = ({
           domain={["dataMin - 100", "dataMax + 100"]}
           tickFormatter={(value) => formatNumber(value)}
         />
-        <Tooltip active content={<CustomTooltip />} />
+        <Tooltip active content={<CumulativeOPDelegatedTooltip />} />
       </LineChart>
     </CustomLineChartWrapper>
   );

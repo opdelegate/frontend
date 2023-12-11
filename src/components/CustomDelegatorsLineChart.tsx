@@ -7,7 +7,7 @@ import {
     YAxis,
     Tooltip,
   } from "recharts";
-  import { CustomTooltip } from "./CustomTooltip";
+  import { CumulativeDelegatorsTooltip } from "./CumulativeDelegatorsTooltip";
   import { Box, Tab, TabList, Tabs } from "@chakra-ui/react";
   import { useMemo, useState } from "react";
   import { NumDelegatorsResponse } from "../types/responsesTypes";
@@ -101,7 +101,7 @@ import {
                 domain={["dataMin - 100", "dataMax + 100"]}
                 tickFormatter={(value) => formatNumber(value)}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CumulativeDelegatorsTooltip />} />
             </LineChart>
           </ResponsiveContainer>
         </Box>
