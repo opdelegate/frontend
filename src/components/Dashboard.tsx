@@ -15,7 +15,7 @@ import {
   ShowLoaderContext,
   ShowLoaderContextType,
 } from "../contexts/ShowLoaderContext";
-import { OPDelegatedResponse, OPDelegatedDailyChange, NumDelegatorsResponse } from '../types/responsesTypes';
+import { OPDelegatedResponse, OPDelegatedDailyChange, NumDelegatorsResponse, NumDelegatorsDailyChange} from '../types/responsesTypes';
 import { formatAddress } from "../utils/functions";
 import { fetchEnsName } from "wagmi/actions";
 
@@ -71,6 +71,7 @@ function Dashboard() {
   const [opDelegatedDailyChange, setDelegatedDailyChange] = useState<
     OPDelegatedDailyChange[]
   >([]);
+  const [numDelegatorsDailyChange, setNumDelegatorsDailyChange] = useState([]);
 
   const [numDelegatorsData, setNumDelegatorsData] = useState<NumDelegatorsResponse[]>([]);
 
@@ -81,7 +82,32 @@ function Dashboard() {
       try {
         const opDelegatedResponse = await getOPDelegated(address);
         const numDelegatorsResponse = await getNumDelegators(address);
-  
+        
+        if (numDelegatorsResponse.success) {
+          setNumDelegatorsData(numDelegatorsResponse.data);
+        
+          const dailyChanges = numDelegatorsResponse.data.reduce(
+            (acc: NumDelegatorsDailyChange[], curr: NumDelegatorsResponse, index: number, array: NumDelegatorsResponse[]) => {
+              if (index === 0) return acc;
+              const prev = array[index - 1];
+              const currDate = new Date(curr.day);
+              const prevDate = new Date(prev.day);
+              const diffTime = Math.abs(currDate.getTime() - prevDate.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              const change = curr.count - prev.count;
+              const changePerDay = change / diffDays;
+              return [...acc, { date: curr.day, change: changePerDay }];
+            }, [] as NumDelegatorsDailyChange[]
+          );
+          
+          
+        
+          setNumDelegatorsDailyChange(dailyChanges);
+        } else {
+          console.error("Error fetching num delegators data: ", numDelegatorsResponse.message);
+        }
+        
+
         if (opDelegatedResponse.success) {
           const data: OPDelegatedResponse[] = opDelegatedResponse.data;
           setOpDelegatedData(data);
@@ -248,7 +274,7 @@ function Dashboard() {
             <Box w="100%" h={CHART_HEIGHT}>
               <CustomAreaChart
                 label="Delegators"
-                data={opDelegatedDataFake}
+                data={numDelegatorsDailyChange}
                 themeColor={OPDELEGATES_PURPLE}
               />
             </Box>

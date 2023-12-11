@@ -13,3 +13,9 @@ export interface NumDelegatorsResponse {
   count: number;
 };
 
+export interface NumDelegatorsDailyChange {
+  date: string;
+  change: number;
+}
+
+
