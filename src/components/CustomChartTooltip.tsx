@@ -1,7 +1,8 @@
 import { HStack, Text, Box } from '@chakra-ui/react';
 import { formatNumber } from '../utils/functions';
+import _ from 'lodash';
 
-export const CumulativeOPDelegatedTooltip = ({ payload, active }: any) => {
+export const CustomChartTooltip = ({ payload, active, label }: any) => {
   //   console.log(active, payload);
   if (active) {
     return (
@@ -16,8 +17,14 @@ export const CumulativeOPDelegatedTooltip = ({ payload, active }: any) => {
           <Text as="b">{payload?.[0]?.payload?.date}</Text>
         </HStack>
         <HStack justifyContent="space-between">
-          <Text color="rgba(0, 0, 0, 0.7)">Quantity</Text>
-          <Text as="b">{formatNumber(payload?.[0]?.payload?.quantity)}</Text>
+          <Text color="rgba(0, 0, 0, 0.7)">
+            {_.startCase((payload?.[0]?.name ?? '') as string)}
+          </Text>
+          <Text as="b">
+            {formatNumber(
+              payload?.[0]?.payload?.quantity ?? payload?.[0]?.payload?.change,
+            )}
+          </Text>
         </HStack>
       </Box>
     );

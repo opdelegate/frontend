@@ -1,71 +1,55 @@
 import {
-  ResponsiveContainer,
-  LineChart,
   CartesianGrid,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
   Area,
-  AreaChart,
   ComposedChart,
-} from "recharts";
-import { CumulativeOPDelegatedTooltip } from "./CumulativeOPDelegatedTooltip";
-import { Box, HStack, Text } from "@chakra-ui/react";
-import { useMemo, useRef } from "react";
-
-export const CustomAreaChartWrapper = ({
-  children,
-  label,
-}: {
-  children: any;
-  label: string;
-}) => {
-  const headref = useRef<HTMLDivElement | null>(null);
-  const tabsHeight = useMemo(() => {
-    // console.log(tabsRef?.current?.clientHeight);
-    // return tabsRef?.current?.clientHeight ?? 58;
-    return 58;
-  }, []);
-
-  return (
-    <Box
-      boxShadow="0px 4px 10px 0px rgba(0, 0, 0, 0.1)"
-      borderRadius="15px"
-      px={4}
-      pt={1}
-      pb={4}
-      height="inherit"
-      background="white"
-    >
-      <HStack ref={headref} justifyContent="space-between" mb={3} py={2}>
-        <Text as="b" fontSize="20px" color="black">
-          Daily Change
-        </Text>
-        <Text fontSize="14px" color="rgba(0, 0, 0, 0.6)">
-          {label}
-        </Text>
-      </HStack>
-
-      <Box height={`calc(100% - ${tabsHeight}px)`}>
-        <ResponsiveContainer>{children}</ResponsiveContainer>
-      </Box>
-    </Box>
-  );
-};
+} from 'recharts';
+import { CustomChartTooltip } from './CustomChartTooltip';
+import { useMemo, useState } from 'react';
+import { formatDate, formatNumber } from '../utils/functions';
+import { DailyChange } from '../types/dataTypes';
+import ChartWrapper from './ChartWrapper';
 
 export const CustomAreaChart = ({
   data,
   label,
   themeColor,
 }: {
-  data: any[];
+  data: DailyChange[];
   label: string;
   themeColor: string;
 }) => {
+  const [selectedTab, setSelectedTab] = useState<number>(0);
+
+  const filteredAndFormattedData = useMemo(() => {
+    const daysToSlice = selectedTab === 0 ? 7 : selectedTab === 1 ? 31 : 365;
+    const d = data.slice(-daysToSlice).map((d) => {
+      const config: Intl.DateTimeFormatOptions = {
+        weekday: selectedTab === 0 ? 'short' : undefined,
+        year: undefined,
+        month: [1, 2].includes(selectedTab) ? 'short' : undefined,
+        day: selectedTab === 0 ? undefined : 'numeric',
+      };
+      return {
+        label: formatDate(d.date, config),
+        change: d.change,
+        date: formatDate(d.date),
+      };
+    });
+    return d;
+  }, [data, selectedTab]);
+
+  const longestLabelLength = useMemo(() => {
+    return filteredAndFormattedData
+      .map((c) => c.change.toString())
+      .reduce((acc, cur) => (cur.length > acc ? cur.length : acc), 0);
+  }, [filteredAndFormattedData]);
+
   return (
-    <CustomAreaChartWrapper label={label}>
-      <ComposedChart data={data}>
+    <ChartWrapper setSelectedTab={setSelectedTab}>
+      <ComposedChart data={filteredAndFormattedData}>
         <CartesianGrid stroke="#ccc" strokeDasharray="3" vertical={false} />
         <defs>
           <linearGradient id={`color${themeColor}`} x1="0" y1="0" x2="0" y2="1">
@@ -74,12 +58,6 @@ export const CustomAreaChart = ({
             <stop offset="100%" stopColor={themeColor} stopOpacity={0}></stop>
           </linearGradient>
         </defs>
-        {/* <Line
-          type="monotone"
-          dataKey="quantity"
-          stroke={themeColor}
-          strokeWidth={2}
-        /> */}
         <Area
           //   type="monotone"
           dataKey="change"
@@ -89,21 +67,24 @@ export const CustomAreaChart = ({
           strokeWidth={2}
         />
         <XAxis
-          dataKey="date"
           //   allowDuplicatedCategory={false}
+          dataKey="label"
           tickLine={{ opacity: 0 }}
-          tick={{ fill: "black", fontWeight: 500 }}
+          tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
           axisLine={{ stroke: themeColor }}
+          angle={[1, 2].includes(selectedTab) ? -45 : 0}
+          height={35}
           tickMargin={15}
         />
         <YAxis
           strokeOpacity={0}
-          tick={{ fill: "black", fontWeight: 500 }}
-          tickMargin={15}
-          width={35}
+          tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
+          width={longestLabelLength * 10}
+          //   domain={['dataMin - 100', 'dataMax + 100']}
+          tickFormatter={(value) => formatNumber(value)}
         />
-        <Tooltip active content={<CumulativeOPDelegatedTooltip />} />
+        <Tooltip active label="pepe" content={<CustomChartTooltip />} />
       </ComposedChart>
-    </CustomAreaChartWrapper>
+    </ChartWrapper>
   );
 };
