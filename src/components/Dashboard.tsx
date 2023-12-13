@@ -114,6 +114,8 @@ function Dashboard() {
             'Error fetching num delegators data: ',
             numDelegatorsResponse.message,
           );
+          setNumDelegatorsData([]);
+          setNumDelegatorsDailyChange([]);
         }
 
         if (opDelegatedResponse.success) {
@@ -149,10 +151,17 @@ function Dashboard() {
             'Error fetching delegated data: ',
             opDelegatedResponse.message,
           );
+
+          setOpDelegatedData([]);
+          setDelegatedDailyChange([]);
         }
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
-        // Optionally handle error
+
+        setNumDelegatorsData([]);
+        setNumDelegatorsDailyChange([]);
+        setOpDelegatedData([]);
+        setDelegatedDailyChange([]);
       } finally {
         setShowLoader(false);
       }
@@ -297,7 +306,7 @@ function Dashboard() {
         </Stack>
 
         {/* Top delegators */}
-        <Stack
+        {/* <Stack
           display={['flex']}
           direction={['column', 'column', 'row']}
           gap={[5, 5, 4]}
@@ -312,7 +321,7 @@ function Dashboard() {
           <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
             <CustomBarsChart data={barsData} label="Delegator sizes" />
           </Box>
-        </Stack>
+        </Stack> */}
       </Stack>
     </Box>
   );

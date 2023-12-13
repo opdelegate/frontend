@@ -11,6 +11,7 @@ import { useMemo, useState } from 'react';
 import { formatDate, formatNumber } from '../utils/functions';
 import { DailyChange } from '../types/dataTypes';
 import ChartWrapper from './ChartWrapper';
+import { Box } from '@chakra-ui/react';
 
 export const CustomAreaChart = ({
   data,
@@ -49,42 +50,64 @@ export const CustomAreaChart = ({
 
   return (
     <ChartWrapper setSelectedTab={setSelectedTab}>
-      <ComposedChart data={filteredAndFormattedData}>
-        <CartesianGrid stroke="#ccc" strokeDasharray="3" vertical={false} />
-        <defs>
-          <linearGradient id={`color${themeColor}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={themeColor} stopOpacity={0.6}></stop>
-            <stop offset="75%" stopColor={themeColor} stopOpacity={0.2}></stop>
-            <stop offset="100%" stopColor={themeColor} stopOpacity={0}></stop>
-          </linearGradient>
-        </defs>
-        <Area
-          //   type="monotone"
-          dataKey="change"
-          stroke={themeColor}
-          //   stroke={'transparent'}
-          fill={`url(#color${themeColor})`}
-          strokeWidth={2}
-        />
-        <XAxis
-          //   allowDuplicatedCategory={false}
-          dataKey="label"
-          tickLine={{ opacity: 0 }}
-          tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
-          axisLine={{ stroke: themeColor }}
-          angle={[1, 2].includes(selectedTab) ? -45 : 0}
-          height={35}
-          tickMargin={15}
-        />
-        <YAxis
-          strokeOpacity={0}
-          tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
-          width={longestLabelLength * 10}
-          //   domain={['dataMin - 100', 'dataMax + 100']}
-          tickFormatter={(value) => formatNumber(value)}
-        />
-        <Tooltip active label="pepe" content={<CustomChartTooltip />} />
-      </ComposedChart>
+      {data.length > 0 ? (
+        <ComposedChart data={filteredAndFormattedData}>
+          <CartesianGrid stroke="#ccc" strokeDasharray="3" vertical={false} />
+          <defs>
+            <linearGradient
+              id={`color${themeColor}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="0%" stopColor={themeColor} stopOpacity={0.6}></stop>
+              <stop
+                offset="75%"
+                stopColor={themeColor}
+                stopOpacity={0.2}
+              ></stop>
+              <stop offset="100%" stopColor={themeColor} stopOpacity={0}></stop>
+            </linearGradient>
+          </defs>
+          <Area
+            //   type="monotone"
+            dataKey="change"
+            stroke={themeColor}
+            //   stroke={'transparent'}
+            fill={`url(#color${themeColor})`}
+            strokeWidth={2}
+          />
+          <XAxis
+            //   allowDuplicatedCategory={false}
+            dataKey="label"
+            tickLine={{ opacity: 0 }}
+            tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
+            axisLine={{ stroke: themeColor }}
+            angle={[1, 2].includes(selectedTab) ? -45 : 0}
+            height={35}
+            tickMargin={15}
+          />
+          <YAxis
+            strokeOpacity={0}
+            tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
+            width={longestLabelLength * 10}
+            //   domain={['dataMin - 100', 'dataMax + 100']}
+            tickFormatter={(value) => formatNumber(value)}
+          />
+          <Tooltip active label="pepe" content={<CustomChartTooltip />} />
+        </ComposedChart>
+      ) : (
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          No data for this delegate
+        </Box>
+      )}
     </ChartWrapper>
   );
 };

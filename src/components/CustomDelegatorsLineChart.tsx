@@ -11,6 +11,7 @@ import { useMemo, useRef, useState } from 'react';
 import { NumDelegators } from '../types/dataTypes';
 import { formatDate, formatNumber } from '../utils/functions';
 import ChartWrapper from './ChartWrapper';
+import { Box } from '@chakra-ui/react';
 
 //TO-DO: I think this chart will need to be deleted if the formatting of the data is done correctly from the backend
 export const CustomDelegatorsLineChart = ({
@@ -57,33 +58,45 @@ export const CustomDelegatorsLineChart = ({
 
   return (
     <ChartWrapper setSelectedTab={setSelectedTab}>
-      <LineChart data={filteredAndFormattedData}>
-        <CartesianGrid stroke="#ccc" strokeDasharray="3" vertical={false} />
-        <Line
-          type="monotone"
-          dataKey="quantity"
-          stroke={themeColor}
-          strokeWidth={2}
-        />
-        <XAxis
-          //   allowDuplicatedCategory={false}
-          dataKey="label"
-          tickLine={{ opacity: 0 }}
-          tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
-          axisLine={{ stroke: themeColor }}
-          tickMargin={15}
-          angle={[1, 2].includes(selectedTab) ? -45 : 0}
-          height={35}
-        />
-        <YAxis
-          strokeOpacity={0}
-          tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
-          width={longestLabelLength * 10}
-          domain={['dataMin - 100', 'dataMax + 100']}
-          tickFormatter={(value) => formatNumber(value)}
-        />
-        <Tooltip active content={<CustomChartTooltip />} />
-      </LineChart>
+      {data.length > 0 ? (
+        <LineChart data={filteredAndFormattedData}>
+          <CartesianGrid stroke="#ccc" strokeDasharray="3" vertical={false} />
+          <Line
+            type="monotone"
+            dataKey="quantity"
+            stroke={themeColor}
+            strokeWidth={2}
+          />
+          <XAxis
+            //   allowDuplicatedCategory={false}
+            dataKey="label"
+            tickLine={{ opacity: 0 }}
+            tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
+            axisLine={{ stroke: themeColor }}
+            tickMargin={15}
+            angle={[1, 2].includes(selectedTab) ? -45 : 0}
+            height={35}
+          />
+          <YAxis
+            strokeOpacity={0}
+            tick={{ fill: 'black', fontWeight: 500, fontSize: 12 }}
+            width={longestLabelLength * 10}
+            domain={['dataMin - 100', 'dataMax + 100']}
+            tickFormatter={(value) => formatNumber(value)}
+          />
+          <Tooltip active content={<CustomChartTooltip />} />
+        </LineChart>
+      ) : (
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          No data for this delegate
+        </Box>
+      )}
     </ChartWrapper>
   );
 };
