@@ -28,6 +28,7 @@ const ConnectWalletButton = ({
         justifyContent="center"
         paddingX={responsive ? ['0', 4, '22px'] : '22px'}
         width={responsive ? ['45px', '45px', 'auto'] : 'auto'}
+        display={['grid', 'inline-flex', 'inline-flex']}
         color="white"
         fontSize="14px"
         h="45px"
