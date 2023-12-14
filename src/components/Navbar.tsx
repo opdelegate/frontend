@@ -121,6 +121,11 @@ function Navbar() {
             onChange={(e) => {
               setSearcherValue(e.target.value);
             }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                onSearch();
+              }
+            }}
           />
           <InputRightElement
             onClick={onSearch}
@@ -145,7 +150,7 @@ function Navbar() {
                 color="black"
                 fontSize="14px"
                 padding={isLargeScreen ? '0 12px 0 0' : 0}
-                minW="141px"
+                minW={['45px', '45px', '141px']}
                 // h="35px"
                 h="45px"
                 justifyContent="flex-start"
@@ -186,14 +191,16 @@ function Navbar() {
             </MenuList>
           </Menu>
         ) : (
-          <ConnectWalletButton
-            connectors={connectors}
-            isLoading={isLoading}
-            connect={connect}
-            pendingConnector={pendingConnector}
-            isLargeScreen={isLargeScreen}
-            responsive
-          />
+          <Box minW="45px">
+            <ConnectWalletButton
+              connectors={connectors}
+              isLoading={isLoading}
+              connect={connect}
+              pendingConnector={pendingConnector}
+              isLargeScreen={isLargeScreen}
+              responsive
+            />
+          </Box>
         )}
       </Box>
     </HStack>

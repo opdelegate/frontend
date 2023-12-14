@@ -174,17 +174,17 @@ function Dashboard() {
       address: address as `0x${string}`,
     });
     if (ensName) setSearchedAddressEnsName(ensName);
+    else setSearchedAddressEnsName('');
   }, []);
 
   useEffect(() => {
+    //TO-DO: Add feature to search ENS names (right now it is just raw addresses)
     if (userAddress || user?.address) {
       const address = userAddress ?? user?.address ?? '';
       fetchUserData(address);
 
       //If the address introduced exists
-      if (userAddress) {
-        retrieveEnsName(userAddress);
-      }
+      if (userAddress) retrieveEnsName(userAddress);
     }
   }, [fetchUserData, retrieveEnsName, user?.address, userAddress]);
 
@@ -215,7 +215,7 @@ function Dashboard() {
               : user?.formattedAddress} */}
 
             {userAddress
-              ? searchedAddressEnsName ?? formatAddress(userAddress)
+              ? searchedAddressEnsName || formatAddress(userAddress)
               : user?.userName
               ? `@${user?.userName}`
               : user?.formattedAddress}
@@ -239,6 +239,7 @@ function Dashboard() {
           </HStack>
         </Box>
       </Stack>
+
       <Divider />
 
       <Stack py={6} gap={[5, 5, 4]} display="flex">
