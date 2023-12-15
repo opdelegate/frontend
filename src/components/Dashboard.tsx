@@ -10,7 +10,7 @@ import { CustomAreaChart } from './CustomAreaChart';
 import { CustomTable } from './CustomTable';
 import { CustomBarsChart } from './CustomBarsChart';
 import { useParams } from 'react-router-dom';
-import { getOPDelegated, getNumDelegators } from '../services/opDelegates';
+import { getOPDelegated, getNumDelegators, getOPDelegatedDailyDifference, getNumDelegatorsDailyDifference } from '../services/opDelegates';
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
@@ -82,79 +82,14 @@ function Dashboard() {
       try {
         const opDelegatedResponse = await getOPDelegated(address);
         const numDelegatorsResponse = await getNumDelegators(address);
+        const opDelegatedDailyChangeResponse = await getOPDelegatedDailyDifference(address);
+        const numDelegatorsDailyChangeResponse = await getNumDelegatorsDailyDifference(address);
 
-        if (numDelegatorsResponse.success) {
-          setNumDelegatorsData(numDelegatorsResponse.data);
+        setOpDelegatedData(opDelegatedResponse.data || []);
+        setNumDelegatorsData(numDelegatorsResponse.data || []);
+        setDelegatedDailyChange(opDelegatedDailyChangeResponse.data || []);
+        setNumDelegatorsDailyChange(numDelegatorsDailyChangeResponse.data || []);
 
-          // TO-DO: do this in the backend
-          const dailyChanges = numDelegatorsResponse.data.reduce(
-            (
-              acc: DailyChange[],
-              curr: NumDelegators,
-              index: number,
-              array: NumDelegators[],
-            ) => {
-              if (index === 0) return acc;
-              const prev = array[index - 1];
-              const currDate = new Date(curr.day);
-              const prevDate = new Date(prev.day);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime(),
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.count - prev.count;
-              const changePerDay = change / diffDays;
-              return [...acc, { date: curr.day, change: changePerDay }];
-            },
-            [] as DailyChange[],
-          );
-          setNumDelegatorsDailyChange(dailyChanges);
-        } else {
-          console.error(
-            'Error fetching num delegators data: ',
-            numDelegatorsResponse.message,
-          );
-          setNumDelegatorsData([]);
-          setNumDelegatorsDailyChange([]);
-        }
-
-        if (opDelegatedResponse.success) {
-          const data: OPDelegated[] = opDelegatedResponse.data;
-          setOpDelegatedData(data);
-
-          // TO-DO: do this in the backend
-          const dailyChanges = data.reduce<DailyChange[]>(
-            (acc, curr, index, array) => {
-              if (index === 0) return acc;
-              const prev = array[index - 1];
-              const currDate = new Date(curr.evt_block_time);
-              const prevDate = new Date(prev.evt_block_time);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime(),
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.newBalance - prev.newBalance;
-              const changePerDay = change / diffDays;
-              return [
-                ...acc,
-                {
-                  date: curr.evt_block_time,
-                  change: changePerDay,
-                },
-              ];
-            },
-            [] as DailyChange[],
-          );
-          setDelegatedDailyChange(dailyChanges);
-        } else {
-          console.error(
-            'Error fetching delegated data: ',
-            opDelegatedResponse.message,
-          );
-
-          setOpDelegatedData([]);
-          setDelegatedDailyChange([]);
-        }
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
 

@@ -35,7 +35,7 @@ export const CustomAreaChart = ({
       };
       return {
         label: formatDate(d.date, config),
-        change: d.change,
+        change: d.dailyDifference,
         date: formatDate(d.date),
       };
     });

@@ -10,5 +10,5 @@ export interface NumDelegators {
 
 export interface DailyChange {
   date: string;
-  change: number;
+  dailyDifference: number;
 }
