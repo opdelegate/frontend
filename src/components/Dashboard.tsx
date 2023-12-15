@@ -118,7 +118,6 @@ function Dashboard() {
         } else {
           setNumDelegatorsDailyChange([]);
         }
-  
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
         setOpDelegatedData([]);
