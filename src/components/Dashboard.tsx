@@ -79,24 +79,52 @@ function Dashboard() {
     async (address: string) => {
       console.log('FETCHING DATA');
       setShowLoader(true);
+  
       try {
-        const opDelegatedResponse = await getOPDelegated(address);
-        const numDelegatorsResponse = await getNumDelegators(address);
-        const opDelegatedDailyChangeResponse = await getOPDelegatedDailyDifference(address);
-        const numDelegatorsDailyChangeResponse = await getNumDelegatorsDailyDifference(address);
-
-        setOpDelegatedData(opDelegatedResponse.data || []);
-        setNumDelegatorsData(numDelegatorsResponse.data || []);
-        setDelegatedDailyChange(opDelegatedDailyChangeResponse.data || []);
-        setNumDelegatorsDailyChange(numDelegatorsDailyChangeResponse.data || []);
-
+        // Use Promise.allSettled to asynchronously fetch data from multiple sources
+        const results = await Promise.allSettled([
+          getOPDelegated(address),
+          getNumDelegators(address),
+          getOPDelegatedDailyDifference(address),
+          getNumDelegatorsDailyDifference(address),
+        ]);
+  
+        const opDelegatedResponse = results[0];
+        const numDelegatorsResponse = results[1];
+        const opDelegatedDailyChangeResponse = results[2];
+        const numDelegatorsDailyChangeResponse = results[3];
+  
+        // Handle each settled promise individually
+        if (opDelegatedResponse.status === 'fulfilled') {
+          setOpDelegatedData(opDelegatedResponse.value.data || []);
+        } else {
+          setOpDelegatedData([]);
+        }
+  
+        if (numDelegatorsResponse.status === 'fulfilled') {
+          setNumDelegatorsData(numDelegatorsResponse.value.data || []);
+        } else {
+          setNumDelegatorsData([]);
+        }
+  
+        if (opDelegatedDailyChangeResponse.status === 'fulfilled') {
+          setDelegatedDailyChange(opDelegatedDailyChangeResponse.value.data || []);
+        } else {
+          setDelegatedDailyChange([]);
+        }
+  
+        if (numDelegatorsDailyChangeResponse.status === 'fulfilled') {
+          setNumDelegatorsDailyChange(numDelegatorsDailyChangeResponse.value.data || []);
+        } else {
+          setNumDelegatorsDailyChange([]);
+        }
+  
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
-
-        setNumDelegatorsData([]);
-        setNumDelegatorsDailyChange([]);
         setOpDelegatedData([]);
+        setNumDelegatorsData([]);
         setDelegatedDailyChange([]);
+        setNumDelegatorsDailyChange([]);
       } finally {
         setShowLoader(false);
       }
