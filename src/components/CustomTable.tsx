@@ -93,11 +93,9 @@ export const CustomTable = ({
               </Tr>
             ))}
           </Tbody>
-          {/* <Tfoot> */}
-          {/* </Tfoot> */}
         </Table>
         <Box mt={2}>
-          <CustomPagination />
+          <CustomPagination total={data.length} />
         </Box>
       </TableContainer>
     </CustomTableWrapper>

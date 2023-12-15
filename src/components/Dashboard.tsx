@@ -10,7 +10,11 @@ import { CustomAreaChart } from './CustomAreaChart';
 import { CustomTable } from './CustomTable';
 import { CustomBarsChart } from './CustomBarsChart';
 import { useParams } from 'react-router-dom';
-import { getOPDelegated, getNumDelegators } from '../services/opDelegates';
+import {
+  getOPDelegated,
+  getNumDelegators,
+  getTopDelegators,
+} from '../services/opDelegates';
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
@@ -82,6 +86,7 @@ function Dashboard() {
       try {
         const opDelegatedResponse = await getOPDelegated(address);
         const numDelegatorsResponse = await getNumDelegators(address);
+        getTopDelegators(address);
 
         if (numDelegatorsResponse.success) {
           setNumDelegatorsData(numDelegatorsResponse.data);
@@ -307,7 +312,7 @@ function Dashboard() {
         </Stack>
 
         {/* Top delegators */}
-        {/* <Stack
+        <Stack
           display={['flex']}
           direction={['column', 'column', 'row']}
           gap={[5, 5, 4]}
@@ -319,10 +324,10 @@ function Dashboard() {
               data={tableData}
             />
           </Box>
-          <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
+          {/* <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
             <CustomBarsChart data={barsData} label="Delegator sizes" />
-          </Box>
-        </Stack> */}
+          </Box> */}
+        </Stack>
       </Stack>
     </Box>
   );
