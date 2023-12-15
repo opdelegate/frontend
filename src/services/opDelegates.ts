@@ -64,3 +64,57 @@ export const getNumDelegators = async (
     };
   }
 };
+
+export const getOPDelegatedDailyDifference = async (
+  address: string,
+): Promise<CustomResponse> => {
+  try {
+    // percentage encoded address
+    address = encodeURIComponent(address);
+    const { data: responseData } = await axios.get<[]>(
+      `${
+        import.meta.env.VITE_API_URL
+      }/get_daily_data_changes/api?delegate=${address}`,
+    );
+
+    if (responseData?.length > 0)
+      return {
+        success: true,
+        message: 'Data Retrieved',
+        data: responseData,
+      };
+    else throw new Error('No data retrieved');
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+}
+
+export const getNumDelegatorsDailyDifference = async (
+  address: string,
+): Promise<CustomResponse> => {
+  try {
+    // percentage encoded address
+    address = encodeURIComponent(address);
+    const { data: responseData } = await axios.get<[]>(
+      `${
+        import.meta.env.VITE_API_URL
+      }/get_daily_delegates_changes/api?delegate=${address}`,
+    );
+
+    if (responseData?.length > 0)
+      return {
+        success: true,
+        message: 'Data Retrieved',
+        data: responseData,
+      };
+    else throw new Error('No data retrieved');
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+}

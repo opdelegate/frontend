@@ -10,7 +10,7 @@ import { CustomAreaChart } from './CustomAreaChart';
 import { CustomTable } from './CustomTable';
 import { CustomBarsChart } from './CustomBarsChart';
 import { useParams } from 'react-router-dom';
-import { getOPDelegated, getNumDelegators } from '../services/opDelegates';
+import { getOPDelegated, getNumDelegators, getOPDelegatedDailyDifference, getNumDelegatorsDailyDifference } from '../services/opDelegates';
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
@@ -79,89 +79,51 @@ function Dashboard() {
     async (address: string) => {
       console.log('FETCHING DATA');
       setShowLoader(true);
+  
       try {
-        const opDelegatedResponse = await getOPDelegated(address);
-        const numDelegatorsResponse = await getNumDelegators(address);
-
-        if (numDelegatorsResponse.success) {
-          setNumDelegatorsData(numDelegatorsResponse.data);
-
-          // TO-DO: do this in the backend
-          const dailyChanges = numDelegatorsResponse.data.reduce(
-            (
-              acc: DailyChange[],
-              curr: NumDelegators,
-              index: number,
-              array: NumDelegators[],
-            ) => {
-              if (index === 0) return acc;
-              const prev = array[index - 1];
-              const currDate = new Date(curr.day);
-              const prevDate = new Date(prev.day);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime(),
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.count - prev.count;
-              const changePerDay = change / diffDays;
-              return [...acc, { date: curr.day, change: changePerDay }];
-            },
-            [] as DailyChange[],
-          );
-          setNumDelegatorsDailyChange(dailyChanges);
+        // Use Promise.allSettled to asynchronously fetch data from multiple sources
+        const results = await Promise.allSettled([
+          getOPDelegated(address),
+          getNumDelegators(address),
+          getOPDelegatedDailyDifference(address),
+          getNumDelegatorsDailyDifference(address),
+        ]);
+  
+        const opDelegatedResponse = results[0];
+        const numDelegatorsResponse = results[1];
+        const opDelegatedDailyChangeResponse = results[2];
+        const numDelegatorsDailyChangeResponse = results[3];
+  
+        // Handle each settled promise individually
+        if (opDelegatedResponse.status === 'fulfilled') {
+          setOpDelegatedData(opDelegatedResponse.value.data || []);
         } else {
-          console.error(
-            'Error fetching num delegators data: ',
-            numDelegatorsResponse.message,
-          );
-          setNumDelegatorsData([]);
-          setNumDelegatorsDailyChange([]);
-        }
-
-        if (opDelegatedResponse.success) {
-          const data: OPDelegated[] = opDelegatedResponse.data;
-          setOpDelegatedData(data);
-
-          // TO-DO: do this in the backend
-          const dailyChanges = data.reduce<DailyChange[]>(
-            (acc, curr, index, array) => {
-              if (index === 0) return acc;
-              const prev = array[index - 1];
-              const currDate = new Date(curr.evt_block_time);
-              const prevDate = new Date(prev.evt_block_time);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime(),
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.newBalance - prev.newBalance;
-              const changePerDay = change / diffDays;
-              return [
-                ...acc,
-                {
-                  date: curr.evt_block_time,
-                  change: changePerDay,
-                },
-              ];
-            },
-            [] as DailyChange[],
-          );
-          setDelegatedDailyChange(dailyChanges);
-        } else {
-          console.error(
-            'Error fetching delegated data: ',
-            opDelegatedResponse.message,
-          );
-
           setOpDelegatedData([]);
+        }
+  
+        if (numDelegatorsResponse.status === 'fulfilled') {
+          setNumDelegatorsData(numDelegatorsResponse.value.data || []);
+        } else {
+          setNumDelegatorsData([]);
+        }
+  
+        if (opDelegatedDailyChangeResponse.status === 'fulfilled') {
+          setDelegatedDailyChange(opDelegatedDailyChangeResponse.value.data || []);
+        } else {
           setDelegatedDailyChange([]);
+        }
+  
+        if (numDelegatorsDailyChangeResponse.status === 'fulfilled') {
+          setNumDelegatorsDailyChange(numDelegatorsDailyChangeResponse.value.data || []);
+        } else {
+          setNumDelegatorsDailyChange([]);
         }
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
-
-        setNumDelegatorsData([]);
-        setNumDelegatorsDailyChange([]);
         setOpDelegatedData([]);
+        setNumDelegatorsData([]);
         setDelegatedDailyChange([]);
+        setNumDelegatorsDailyChange([]);
       } finally {
         setShowLoader(false);
       }
