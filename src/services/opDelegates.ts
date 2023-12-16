@@ -1,4 +1,6 @@
-import Axios from 'axios';
+import Axios from "axios";
+import { get } from "http";
+import { getBaseUrl } from "../utils/endpoint";
 
 interface CustomResponse {
   success: boolean;
@@ -8,28 +10,28 @@ interface CustomResponse {
 
 const axios = Axios.create({
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     // 'X-Api-Key': import.meta.env.REACT_APP_X_API_KEY ?? '',
   },
 });
 
 export const getOPDelegated = async (
-  address: string,
+  address: string
 ): Promise<CustomResponse> => {
   try {
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${import.meta.env.VITE_API_URL}/get_daily_data/api?delegate=${address}`,
+      `${getBaseUrl()}/get_daily_data/api?delegate=${address}`
     );
 
-    if (typeof responseData !== 'string' && responseData?.length > 0)
+    if (typeof responseData !== "string" && responseData?.length > 0)
       return {
         success: true,
-        message: 'Data Retrieved',
+        message: "Data Retrieved",
         data: responseData,
       };
-    else throw new Error('No data retrieved');
+    else throw new Error("No data retrieved");
   } catch (error: any) {
     return {
       success: false,
@@ -39,24 +41,72 @@ export const getOPDelegated = async (
 };
 
 export const getNumDelegators = async (
-  address: string,
+  address: string
 ): Promise<CustomResponse> => {
   try {
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${
-        import.meta.env.VITE_API_URL
-      }/get_daily_delegates/api?delegate=${address}`,
+      `${getBaseUrl()}/get_daily_delegates/api?delegate=${address}`
     );
 
     if (responseData?.length > 0)
       return {
         success: true,
-        message: 'Data Retrieved',
+        message: "Data Retrieved",
         data: responseData,
       };
-    else throw new Error('No data retrieved');
+    else throw new Error("No data retrieved");
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+export const getOPDelegatedDailyDifference = async (
+  address: string
+): Promise<CustomResponse> => {
+  try {
+    // percentage encoded address
+    address = encodeURIComponent(address);
+    const { data: responseData } = await axios.get<[]>(
+      `${getBaseUrl()}/get_daily_data_changes/api?delegate=${address}`
+    );
+
+    if (responseData?.length > 0)
+      return {
+        success: true,
+        message: "Data Retrieved",
+        data: responseData,
+      };
+    else throw new Error("No data retrieved");
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+export const getNumDelegatorsDailyDifference = async (
+  address: string
+): Promise<CustomResponse> => {
+  try {
+    // percentage encoded address
+    address = encodeURIComponent(address);
+    const { data: responseData } = await axios.get<[]>(
+      `${getBaseUrl()}/get_daily_delegates_changes/api?delegate=${address}`
+    );
+
+    if (responseData?.length > 0)
+      return {
+        success: true,
+        message: "Data Retrieved",
+        data: responseData,
+      };
+    else throw new Error("No data retrieved");
   } catch (error: any) {
     return {
       success: false,

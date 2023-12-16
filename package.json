@@ -30,7 +30,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "deploy:dev": "curl https://api.vercel.com/v1/integrations/deploy/prj_xk4v5cHfRMSlaejsIIfchRklveBf/6SFaNyePgl"
+    "deploy:dev": "curl https://api.vercel.com/v1/integrations/deploy/prj_xk4v5cHfRMSlaejsIIfchRklveBf/6SFaNyePgl",
+    "deploy:prod": "curl https://api.vercel.com/v1/integrations/deploy/prj_xk4v5cHfRMSlaejsIIfchRklveBf/6MnpY7RMsS"
   },
   "eslintConfig": {
     "extends": [
