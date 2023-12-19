@@ -14,12 +14,13 @@ import {
 
 const CustomPagination = ({
   total,
-  pageSize = 6,
+  pageSize,
+  onPageChange,
 }: {
   total: number;
-  pageSize?: number;
+  pageSize: number;
+  onPageChange: (a: number) => void;
 }) => {
-  //////////////////////////////////////////////////////////////////////////////////////////////////
   const { currentPage, setCurrentPage, pagesCount, pages } = usePagination({
     initialState: { currentPage: 1, pageSize },
     total,
@@ -27,8 +28,8 @@ const CustomPagination = ({
   });
 
   useEffect(() => {
-    currentPage;
-  }, []);
+    onPageChange(currentPage);
+  }, [currentPage]);
 
   return (
     <Pagination

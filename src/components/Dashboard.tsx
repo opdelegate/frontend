@@ -13,42 +13,26 @@ import { useParams } from 'react-router-dom';
 import {
   getOPDelegated,
   getNumDelegators,
-  getTopDelegators,
+  getOPDelegatedDailyDifference,
+  getNumDelegatorsDailyDifference,
+  geTopDelegators,
 } from '../services/opDelegates';
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
 } from '../contexts/ShowLoaderContext';
-import { OPDelegated, DailyChange, NumDelegators } from '../types/dataTypes';
+import {
+  OPDelegated,
+  DailyChange,
+  NumDelegators,
+  DelegatorAmount,
+} from '../types/dataTypes';
 import { formatAddress } from '../utils/functions';
 import { fetchEnsName } from 'wagmi/actions';
 
 const CHART_HEIGHT = '330';
 
-//   const [opDelegatedDataFake] = useState([
-//     { month: 'Feb', date: '08/03/2023', quantity: 10, hour: '6am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 20, hour: '7am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 30, hour: '8am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 35, hour: '9am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 35, hour: '10am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 40, hour: '11am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 70, hour: '12pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 75, hour: '1pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 80, hour: '2pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 85, hour: '3pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 90, hour: '4pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 95, hour: '5pm' },
-//   ]);
-
-const tableHeaders = ['#', 'Delegator', 'OP delegated'];
-const tableData = [
-  { n: 1, address: '0x11...d752', delegated: 120000 },
-  { n: 2, address: 'asdasda', delegated: 12000 },
-  { n: 3, address: '0x11...d752', delegated: 1200 },
-  { n: 4, address: 'asdasda', delegated: 120 },
-  { n: 5, address: '0x11...d752', delegated: 20 },
-  { n: 6, address: 'asdasda', delegated: 10 },
-];
+const tableHeaders = ['Delegator', 'OP delegated'];
 
 const barsData = [
   { label: '0-5', quantity: 10 },
@@ -79,94 +63,77 @@ function Dashboard() {
     DailyChange[]
   >([]);
 
+  const [topDelegators, setTopDelegators] = useState<DelegatorAmount[]>([]);
+
   const fetchUserData = useCallback(
     async (address: string) => {
       console.log('FETCHING DATA');
       setShowLoader(true);
+
       try {
-        const opDelegatedResponse = await getOPDelegated(address);
-        const numDelegatorsResponse = await getNumDelegators(address);
-        getTopDelegators(address);
+        // Use Promise.allSettled to asynchronously fetch data from multiple sources
+        const results = await Promise.allSettled([
+          getOPDelegated(address),
+          getNumDelegators(address),
+          getOPDelegatedDailyDifference(address),
+          getNumDelegatorsDailyDifference(address),
+          geTopDelegators(address),
+        ]);
 
-        if (numDelegatorsResponse.success) {
-          setNumDelegatorsData(numDelegatorsResponse.data);
+        const opDelegatedResponse = results[0];
+        const numDelegatorsResponse = results[1];
+        const opDelegatedDailyChangeResponse = results[2];
+        const numDelegatorsDailyChangeResponse = results[3];
+        const topDelegatorsResponse = results[4];
 
-          // TO-DO: do this in the backend
-          const dailyChanges = numDelegatorsResponse.data.reduce(
-            (
-              acc: DailyChange[],
-              curr: NumDelegators,
-              index: number,
-              array: NumDelegators[],
-            ) => {
-              if (index === 0) return acc;
-              const prev = array[index - 1];
-              const currDate = new Date(curr.day);
-              const prevDate = new Date(prev.day);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime(),
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.count - prev.count;
-              const changePerDay = change / diffDays;
-              return [...acc, { date: curr.day, change: changePerDay }];
-            },
-            [] as DailyChange[],
-          );
-          setNumDelegatorsDailyChange(dailyChanges);
+        // Handle each settled promise individually
+        if (opDelegatedResponse.status === 'fulfilled') {
+          setOpDelegatedData(opDelegatedResponse.value.data || []);
         } else {
-          console.error(
-            'Error fetching num delegators data: ',
-            numDelegatorsResponse.message,
-          );
+          setOpDelegatedData([]);
+        }
+
+        if (numDelegatorsResponse.status === 'fulfilled') {
+          setNumDelegatorsData(numDelegatorsResponse.value.data || []);
+        } else {
           setNumDelegatorsData([]);
+        }
+
+        if (opDelegatedDailyChangeResponse.status === 'fulfilled') {
+          setDelegatedDailyChange(
+            opDelegatedDailyChangeResponse.value.data || [],
+          );
+        } else {
+          setDelegatedDailyChange([]);
+        }
+
+        if (numDelegatorsDailyChangeResponse.status === 'fulfilled') {
+          setNumDelegatorsDailyChange(
+            numDelegatorsDailyChangeResponse.value.data || [],
+          );
+        } else {
           setNumDelegatorsDailyChange([]);
         }
 
-        if (opDelegatedResponse.success) {
-          const data: OPDelegated[] = opDelegatedResponse.data;
-          setOpDelegatedData(data);
-
-          // TO-DO: do this in the backend
-          const dailyChanges = data.reduce<DailyChange[]>(
-            (acc, curr, index, array) => {
-              if (index === 0) return acc;
-              const prev = array[index - 1];
-              const currDate = new Date(curr.evt_block_time);
-              const prevDate = new Date(prev.evt_block_time);
-              const diffTime = Math.abs(
-                currDate.getTime() - prevDate.getTime(),
-              );
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const change = curr.newBalance - prev.newBalance;
-              const changePerDay = change / diffDays;
-              return [
-                ...acc,
-                {
-                  date: curr.evt_block_time,
-                  change: changePerDay,
-                },
-              ];
-            },
-            [] as DailyChange[],
-          );
-          setDelegatedDailyChange(dailyChanges);
+        if (topDelegatorsResponse.status === 'fulfilled') {
+          //TO-DO: shoulnd't we use ?? instead of ||?
+          const data: DelegatorAmount[] =
+            topDelegatorsResponse.value.data || [];
+          const mappedData = data.map((d, index) => ({
+            ...d,
+            rank: index + 1,
+          }));
+          setTopDelegators(mappedData);
         } else {
-          console.error(
-            'Error fetching delegated data: ',
-            opDelegatedResponse.message,
-          );
-
-          setOpDelegatedData([]);
-          setDelegatedDailyChange([]);
+          setTopDelegators([]);
         }
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
-
-        setNumDelegatorsData([]);
-        setNumDelegatorsDailyChange([]);
         setOpDelegatedData([]);
+        setNumDelegatorsData([]);
         setDelegatedDailyChange([]);
+        setNumDelegatorsDailyChange([]);
+        setTopDelegators([]);
       } finally {
         setShowLoader(false);
       }
@@ -321,7 +288,7 @@ function Dashboard() {
             <CustomTable
               label="Top delegators"
               headers={tableHeaders}
-              data={tableData}
+              data={topDelegators}
             />
           </Box>
           {/* <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>

@@ -10,5 +10,12 @@ export interface NumDelegators {
 
 export interface DailyChange {
   date: string;
-  change: number;
+  dailyDifference: number;
+}
+
+export interface DelegatorAmount {
+  delegator: string;
+  amount: number;
+  rank: number;
+  ensName: string;
 }
