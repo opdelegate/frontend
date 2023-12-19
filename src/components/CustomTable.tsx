@@ -88,7 +88,7 @@ export const CustomTable = ({
             const ensName = await fetchEnsName({
               address: d.delegator as `0x${string}`,
             });
-            console.log(`ENS NAME FOR ${d.delegator} is: `, ensName);
+            // console.log(`ENS NAME FOR ${d.delegator} is: `, ensName);
             if (ensName) d.ensName = ensName;
             d.searchedEnsName = true;
           }
