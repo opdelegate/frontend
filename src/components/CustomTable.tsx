@@ -20,6 +20,7 @@ import { FaRegCopy } from 'react-icons/fa';
 import { formatAddress, formatNumber } from '../utils/functions';
 import CustomPagination from './CustomPagination';
 import { DelegatorAmount } from '../types/dataTypes';
+import { fetchEnsName } from '@wagmi/core';
 
 const PAGE_SIZE = 6;
 
@@ -64,29 +65,58 @@ export const CustomTable = ({
   headers,
   label,
   data,
+  setData,
 }: {
   headers: string[];
   label: string;
   data: DelegatorAmount[];
+  setData: React.Dispatch<React.SetStateAction<DelegatorAmount[]>>;
 }) => {
   const { hasCopied, onCopy, value, setValue } = useClipboard('');
   useEffect(() => {
-    onCopy();
+    // console.log('COPY', value);
+    if (value) onCopy();
   }, [value]);
 
   const [dataToShow, setDataToShow] = useState<DelegatorAmount[]>([]);
 
+  const retrieveEnsNamesAndSetDataToShow = useCallback(
+    async (allData: DelegatorAmount[], data: DelegatorAmount[]) => {
+      await Promise.all(
+        data.map(async (d): Promise<any> => {
+          if (!d.ensName && !d.searchedEnsName) {
+            const ensName = await fetchEnsName({
+              address: d.delegator as `0x${string}`,
+            });
+            console.log(`ENS NAME FOR ${d.delegator} is: `, ensName);
+            if (ensName) d.ensName = ensName;
+            d.searchedEnsName = true;
+          }
+        }),
+      );
+      setDataToShow(data);
+      setData(allData);
+    },
+    [],
+  );
+
   //The first time this component loads
   useEffect(() => {
     if (data.length > 0) {
-      setDataToShow(data.slice(0, PAGE_SIZE));
+      //   setDataToShow(data.slice(0, PAGE_SIZE));
+      retrieveEnsNamesAndSetDataToShow(data, data.slice(0, PAGE_SIZE));
     }
   }, [data]);
 
   const onPageChange = useCallback(
     (currentPage: number) => {
       const initial = (currentPage - 1) * PAGE_SIZE;
-      setDataToShow(data.slice(initial, initial + PAGE_SIZE));
+      //   setDataToShow(data.slice(initial, initial + PAGE_SIZE));
+
+      retrieveEnsNamesAndSetDataToShow(
+        data,
+        data.slice(initial, initial + PAGE_SIZE),
+      );
     },
     [data],
   );

@@ -18,4 +18,5 @@ export interface DelegatorAmount {
   amount: number;
   rank: number;
   ensName: string;
+  searchedEnsName: boolean;
 }

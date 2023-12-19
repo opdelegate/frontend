@@ -44,7 +44,6 @@ export const getNumDelegators = async (
   try {
     // percentage encoded address
     address = encodeURIComponent(address);
-    console.log(import.meta);
     const { data: responseData } = await axios.get<[]>(
       `${
         import.meta.env.VITE_API_URL

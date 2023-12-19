@@ -289,6 +289,7 @@ function Dashboard() {
               label="Top delegators"
               headers={tableHeaders}
               data={topDelegators}
+              setData={setTopDelegators}
             />
           </Box>
           {/* <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
