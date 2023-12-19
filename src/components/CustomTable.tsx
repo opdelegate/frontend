@@ -118,7 +118,7 @@ export const CustomTable = ({
                     <Text>
                       {hasCopied && value === d.delegator
                         ? 'Copied!'
-                        : formatAddress(d.delegator)}
+                        : d?.ensName ?? formatAddress(d.delegator)}
                     </Text>
                     <FaRegCopy
                       cursor="pointer"

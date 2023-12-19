@@ -1,6 +1,4 @@
 import Axios from 'axios';
-import { get } from 'http';
-import { getBaseUrl } from '../utils/endpoint';
 
 interface CustomResponse {
   success: boolean;
@@ -22,7 +20,7 @@ export const getOPDelegated = async (
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${getBaseUrl()}/get_daily_data/api?delegate=${address}`,
+      `${import.meta.env.VITE_API_URL}/get_daily_data/api?delegate=${address}`,
     );
 
     if (typeof responseData !== 'string' && responseData?.length > 0)
@@ -46,8 +44,11 @@ export const getNumDelegators = async (
   try {
     // percentage encoded address
     address = encodeURIComponent(address);
+    console.log(import.meta);
     const { data: responseData } = await axios.get<[]>(
-      `${getBaseUrl()}/get_daily_delegates/api?delegate=${address}`,
+      `${
+        import.meta.env.VITE_API_URL
+      }/get_daily_delegates/api?delegate=${address}`,
     );
 
     if (responseData?.length > 0)
@@ -72,7 +73,9 @@ export const getOPDelegatedDailyDifference = async (
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${getBaseUrl()}/get_daily_data_changes/api?delegate=${address}`,
+      `${
+        import.meta.env.VITE_API_URL
+      }/get_daily_data_changes/api?delegate=${address}`,
     );
 
     if (responseData?.length > 0)
@@ -97,7 +100,9 @@ export const getNumDelegatorsDailyDifference = async (
     // percentage encoded address
     address = encodeURIComponent(address);
     const { data: responseData } = await axios.get<[]>(
-      `${getBaseUrl()}/get_daily_delegates_changes/api?delegate=${address}`,
+      `${
+        import.meta.env.VITE_API_URL
+      }/get_daily_delegates_changes/api?delegate=${address}`,
     );
 
     if (responseData?.length > 0)
