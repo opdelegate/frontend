@@ -72,10 +72,15 @@ export const CustomTable = ({
   data: DelegatorAmount[];
   setData: React.Dispatch<React.SetStateAction<DelegatorAmount[]>>;
 }) => {
-  const { hasCopied, onCopy, value, setValue } = useClipboard('');
+  const { hasCopied, onCopy, value, setValue } = useClipboard('', 500);
   useEffect(() => {
     // console.log('COPY', value);
-    if (value) onCopy();
+    if (value) {
+      onCopy();
+      setTimeout(() => {
+        setValue('');
+      }, 500);
+    }
   }, [value]);
 
   const [dataToShow, setDataToShow] = useState<DelegatorAmount[]>([]);
@@ -160,7 +165,7 @@ export const CustomTable = ({
                   </HStack>
                 </Td>
                 <Td w="30%" borderColor="transparent">
-                  {formatNumber(d.amount)} OP
+                  {formatNumber(Math.round(d.amount))} OP
                 </Td>
               </Tr>
             ))}
