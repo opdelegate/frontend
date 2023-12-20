@@ -12,3 +12,11 @@ export interface DailyChange {
   date: string;
   dailyDifference: number;
 }
+
+export interface DelegatorAmount {
+  delegator: string;
+  amount: number;
+  rank: number;
+  ensName: string;
+  searchedEnsName: boolean;
+}

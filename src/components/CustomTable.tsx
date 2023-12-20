@@ -2,6 +2,7 @@ import { ResponsiveContainer } from 'recharts';
 import {
   Box,
   HStack,
+  Link,
   Table,
   TableCaption,
   TableContainer,
@@ -12,10 +13,16 @@ import {
   Th,
   Thead,
   Tr,
+  useClipboard,
 } from '@chakra-ui/react';
-import { useMemo, useRef } from 'react';
-import { formatNumber } from '../utils/functions';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FaRegCopy } from 'react-icons/fa';
+import { formatAddress, formatNumber } from '../utils/functions';
 import CustomPagination from './CustomPagination';
+import { DelegatorAmount } from '../types/dataTypes';
+import { fetchEnsName } from '@wagmi/core';
+
+const PAGE_SIZE = 6;
 
 export const CustomTableWrapper = ({
   children,
@@ -56,21 +63,78 @@ export const CustomTableWrapper = ({
 
 export const CustomTable = ({
   headers,
-  data,
   label,
-}: //   themeColor,
-{
+  data,
+  setData,
+}: {
   headers: string[];
-  data: { n: number; address: string; delegated: number }[];
   label: string;
-  //   themeColor: string;
+  data: DelegatorAmount[];
+  setData: React.Dispatch<React.SetStateAction<DelegatorAmount[]>>;
 }) => {
+  const { hasCopied, onCopy, value, setValue } = useClipboard('', 500);
+  useEffect(() => {
+    // console.log('COPY', value);
+    if (value) {
+      onCopy();
+      setTimeout(() => {
+        setValue('');
+      }, 500);
+    }
+  }, [value]);
+
+  const [dataToShow, setDataToShow] = useState<DelegatorAmount[]>([]);
+
+  const retrieveEnsNamesAndSetDataToShow = useCallback(
+    async (allData: DelegatorAmount[], data: DelegatorAmount[]) => {
+      await Promise.all(
+        data.map(async (d): Promise<any> => {
+          if (!d.ensName && !d.searchedEnsName) {
+            const ensName = await fetchEnsName({
+              address: d.delegator as `0x${string}`,
+            });
+            // console.log(`ENS NAME FOR ${d.delegator} is: `, ensName);
+            if (ensName) d.ensName = ensName;
+            d.searchedEnsName = true;
+          }
+        }),
+      );
+      setDataToShow(data);
+      setData(allData);
+    },
+    [],
+  );
+
+  //The first time this component loads
+  useEffect(() => {
+    if (data.length > 0) {
+      //   setDataToShow(data.slice(0, PAGE_SIZE));
+      retrieveEnsNamesAndSetDataToShow(data, data.slice(0, PAGE_SIZE));
+    }
+  }, [data]);
+
+  const onPageChange = useCallback(
+    (currentPage: number) => {
+      const initial = (currentPage - 1) * PAGE_SIZE;
+      //   setDataToShow(data.slice(initial, initial + PAGE_SIZE));
+
+      retrieveEnsNamesAndSetDataToShow(
+        data,
+        data.slice(initial, initial + PAGE_SIZE),
+      );
+    },
+    [data],
+  );
+
   return (
     <CustomTableWrapper label={label}>
       <TableContainer>
         <Table w="100%" variant="striped" size="sm">
           <Thead>
             <Tr>
+              <Td>
+                <Text as="b">#</Text>
+              </Td>
               {headers.map((header) => (
                 <Td key={header}>
                   <Text as="b">{header}</Text>
@@ -79,25 +143,40 @@ export const CustomTable = ({
             </Tr>
           </Thead>
           <Tbody w="100%">
-            {data.map((d, index) => (
+            {dataToShow.map((d, index) => (
               <Tr key={index} w="100%">
                 <Td w="25%" borderColor="transparent">
-                  {d.n}
+                  {d.rank}
                 </Td>
                 <Td w="40%" borderColor="transparent">
-                  {d.address}
+                  <HStack>
+                    <Text>
+                      {hasCopied && value === d.delegator
+                        ? 'Copied!'
+                        : d?.ensName ?? formatAddress(d.delegator)}
+                    </Text>
+                    <FaRegCopy
+                      cursor="pointer"
+                      color="gray.500"
+                      onClick={() => {
+                        setValue(d.delegator);
+                      }}
+                    />
+                  </HStack>
                 </Td>
                 <Td w="30%" borderColor="transparent">
-                  {formatNumber(d.delegated)} OP
+                  {formatNumber(Math.round(d.amount))} OP
                 </Td>
               </Tr>
             ))}
           </Tbody>
-          {/* <Tfoot> */}
-          {/* </Tfoot> */}
         </Table>
         <Box mt={2}>
-          <CustomPagination />
+          <CustomPagination
+            total={data.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={onPageChange}
+          />
         </Box>
       </TableContainer>
     </CustomTableWrapper>
