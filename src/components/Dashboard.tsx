@@ -10,41 +10,29 @@ import { CustomAreaChart } from './CustomAreaChart';
 import { CustomTable } from './CustomTable';
 import { CustomBarsChart } from './CustomBarsChart';
 import { useParams } from 'react-router-dom';
-import { getOPDelegated, getNumDelegators, getOPDelegatedDailyDifference, getNumDelegatorsDailyDifference } from '../services/opDelegates';
+import {
+  getOPDelegated,
+  getNumDelegators,
+  getOPDelegatedDailyDifference,
+  getNumDelegatorsDailyDifference,
+  geTopDelegators,
+} from '../services/opDelegates';
 import {
   ShowLoaderContext,
   ShowLoaderContextType,
 } from '../contexts/ShowLoaderContext';
-import { OPDelegated, DailyChange, NumDelegators } from '../types/dataTypes';
+import {
+  OPDelegated,
+  DailyChange,
+  NumDelegators,
+  DelegatorAmount,
+} from '../types/dataTypes';
 import { formatAddress } from '../utils/functions';
 import { fetchEnsName } from 'wagmi/actions';
 
 const CHART_HEIGHT = '330';
 
-//   const [opDelegatedDataFake] = useState([
-//     { month: 'Feb', date: '08/03/2023', quantity: 10, hour: '6am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 20, hour: '7am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 30, hour: '8am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 35, hour: '9am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 35, hour: '10am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 40, hour: '11am' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 70, hour: '12pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 75, hour: '1pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 80, hour: '2pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 85, hour: '3pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 90, hour: '4pm' },
-//     { month: 'Feb', date: '08/03/2023', quantity: 95, hour: '5pm' },
-//   ]);
-
-const tableHeaders = ['#', 'Delegator', 'OP delegated'];
-const tableData = [
-  { n: 1, address: '0x11...d752', delegated: 120000 },
-  { n: 2, address: 'asdasda', delegated: 12000 },
-  { n: 3, address: '0x11...d752', delegated: 1200 },
-  { n: 4, address: 'asdasda', delegated: 120 },
-  { n: 5, address: '0x11...d752', delegated: 20 },
-  { n: 6, address: 'asdasda', delegated: 10 },
-];
+const tableHeaders = ['Delegator', 'OP delegated'];
 
 const barsData = [
   { label: '0-5', quantity: 10 },
@@ -75,11 +63,13 @@ function Dashboard() {
     DailyChange[]
   >([]);
 
+  const [topDelegators, setTopDelegators] = useState<DelegatorAmount[]>([]);
+
   const fetchUserData = useCallback(
     async (address: string) => {
       console.log('FETCHING DATA');
       setShowLoader(true);
-  
+
       try {
         // Use Promise.allSettled to asynchronously fetch data from multiple sources
         const results = await Promise.allSettled([
@@ -87,36 +77,55 @@ function Dashboard() {
           getNumDelegators(address),
           getOPDelegatedDailyDifference(address),
           getNumDelegatorsDailyDifference(address),
+          geTopDelegators(address),
         ]);
-  
+
         const opDelegatedResponse = results[0];
         const numDelegatorsResponse = results[1];
         const opDelegatedDailyChangeResponse = results[2];
         const numDelegatorsDailyChangeResponse = results[3];
-  
+        const topDelegatorsResponse = results[4];
+
         // Handle each settled promise individually
         if (opDelegatedResponse.status === 'fulfilled') {
           setOpDelegatedData(opDelegatedResponse.value.data || []);
         } else {
           setOpDelegatedData([]);
         }
-  
+
         if (numDelegatorsResponse.status === 'fulfilled') {
           setNumDelegatorsData(numDelegatorsResponse.value.data || []);
         } else {
           setNumDelegatorsData([]);
         }
-  
+
         if (opDelegatedDailyChangeResponse.status === 'fulfilled') {
-          setDelegatedDailyChange(opDelegatedDailyChangeResponse.value.data || []);
+          setDelegatedDailyChange(
+            opDelegatedDailyChangeResponse.value.data || [],
+          );
         } else {
           setDelegatedDailyChange([]);
         }
-  
+
         if (numDelegatorsDailyChangeResponse.status === 'fulfilled') {
-          setNumDelegatorsDailyChange(numDelegatorsDailyChangeResponse.value.data || []);
+          setNumDelegatorsDailyChange(
+            numDelegatorsDailyChangeResponse.value.data || [],
+          );
         } else {
           setNumDelegatorsDailyChange([]);
+        }
+
+        if (topDelegatorsResponse.status === 'fulfilled') {
+          //TO-DO: shoulnd't we use ?? instead of ||?
+          const data: DelegatorAmount[] =
+            topDelegatorsResponse.value.data || [];
+          const mappedData = data.map((d, index) => ({
+            ...d,
+            rank: index + 1,
+          }));
+          setTopDelegators(mappedData);
+        } else {
+          setTopDelegators([]);
         }
       } catch (error) {
         console.error('Error in fetchUserData: ', error);
@@ -124,6 +133,7 @@ function Dashboard() {
         setNumDelegatorsData([]);
         setDelegatedDailyChange([]);
         setNumDelegatorsDailyChange([]);
+        setTopDelegators([]);
       } finally {
         setShowLoader(false);
       }
@@ -269,7 +279,7 @@ function Dashboard() {
         </Stack>
 
         {/* Top delegators */}
-        {/* <Stack
+        <Stack
           display={['flex']}
           direction={['column', 'column', 'row']}
           gap={[5, 5, 4]}
@@ -278,13 +288,14 @@ function Dashboard() {
             <CustomTable
               label="Top delegators"
               headers={tableHeaders}
-              data={tableData}
+              data={topDelegators}
+              setData={setTopDelegators}
             />
           </Box>
-          <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
+          {/* <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
             <CustomBarsChart data={barsData} label="Delegator sizes" />
-          </Box>
-        </Stack> */}
+          </Box> */}
+        </Stack>
       </Stack>
     </Box>
   );
