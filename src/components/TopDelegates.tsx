@@ -8,7 +8,7 @@ import {
     ShowLoaderContextType,
   } from '../contexts/ShowLoaderContext';
 
-const tableHeaders = ['Delegates', 'Votable supply', 'Votable Supply(%)'];
+const tableHeaders = ['Delegates', 'Votable Supply', 'Votable Supply(%)'];
 function topDelegates() {
     const { setShowLoader }: ShowLoaderContextType = useContext(ShowLoaderContext);
     const [topDelegates, setTopDelegates] = useState<Delegates[]>([]);
