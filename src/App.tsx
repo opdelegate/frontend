@@ -58,7 +58,7 @@ function App() {
                         element={<LandingPage />}
                       />
                       <Route
-                        path={`${GLOBAL_ROUTES.ROOT}:userAddress`}
+                        path={`${GLOBAL_ROUTES.ROOT}:param`}
                         element={<Dashboard />}
                       />
                     </>
@@ -66,7 +66,7 @@ function App() {
                   {user && (
                     <>
                       <Route
-                        path={`${GLOBAL_ROUTES.ROOT}:userAddress`}
+                        path={`${GLOBAL_ROUTES.ROOT}:param`}
                         element={<Dashboard />}
                       />
                       <Route

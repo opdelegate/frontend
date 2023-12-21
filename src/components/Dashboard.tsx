@@ -28,7 +28,7 @@ import {
   DelegatorAmount,
 } from '../types/dataTypes';
 import { formatAddress } from '../utils/functions';
-import { fetchEnsName } from 'wagmi/actions';
+import { fetchEnsName, fetchEnsAddress } from 'wagmi/actions';
 
 const CHART_HEIGHT = '330';
 
@@ -44,7 +44,7 @@ const barsData = [
 ];
 
 function Dashboard() {
-  const { userAddress } = useParams();
+  const { param } = useParams();
   const { user, setUser }: UserContextType = useContext(UserContext);
   const [searchedAddressEnsName, setSearchedAddressEnsName] = useState('');
 
@@ -149,16 +149,29 @@ function Dashboard() {
     else setSearchedAddressEnsName('');
   }, []);
 
-  useEffect(() => {
-    //TO-DO: Add feature to search ENS names (right now it is just raw addresses)
-    if (userAddress || user?.address) {
-      const address = userAddress ?? user?.address ?? '';
+  const retrieveEnsAddress = useCallback(async (ensName: string) => {
+    const address = await fetchEnsAddress({
+      name: ensName,
+    });
+    if (address) {
+      setSearchedAddressEnsName(ensName);
       fetchUserData(address);
-
-      //If the address introduced exists
-      if (userAddress) retrieveEnsName(userAddress);
     }
-  }, [fetchUserData, retrieveEnsName, user?.address, userAddress]);
+  }, []);
+
+  useEffect(() => {
+    if (param) {
+      console.log('THERE IS A PARAM');
+      if (param?.includes('0x') && param.length === 42) {
+        console.log('PARAM IS ADDRESS: ', param);
+        fetchUserData(param);
+        retrieveEnsName(param);
+      } else {
+        console.log('PARAM IS NOT ADDRESS: ', param);
+        retrieveEnsAddress(param);
+      }
+    } else if (user?.address) fetchUserData(user?.address);
+  }, [fetchUserData, retrieveEnsName, user?.address, param]);
 
   // Extract the last newBalance value from opDelegatedData
   const lastOpDelegated =
@@ -180,14 +193,8 @@ function Dashboard() {
         <HStack fontSize={[24, 24, 30]}>
           <BiTargetLock color="red" />
           <Text as="b">
-            {/* {userAddress
-              ? formatAddress(userAddress)
-              : user?.userName
-              ? `@${user?.userName}`
-              : user?.formattedAddress} */}
-
-            {userAddress
-              ? searchedAddressEnsName || formatAddress(userAddress)
+            {param
+              ? searchedAddressEnsName || formatAddress(param)
               : user?.userName
               ? `@${user?.userName}`
               : user?.formattedAddress}
