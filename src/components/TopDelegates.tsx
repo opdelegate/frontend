@@ -8,7 +8,7 @@ import {
     ShowLoaderContextType,
   } from '../contexts/ShowLoaderContext';
 
-const tableHeaders = ['Delegates', 'Voteable supply', 'Vote Supply(%)'];
+const tableHeaders = ['Delegates', 'Votable supply', 'Votable Supply(%)'];
 function topDelegates() {
     const { setShowLoader }: ShowLoaderContextType = useContext(ShowLoaderContext);
     const [topDelegates, setTopDelegates] = useState<Delegates[]>([]);
@@ -17,7 +17,7 @@ function topDelegates() {
         setShowLoader(true);
         try {
           const topDelegatesResponse = await getTopDelegates();
-          setTopDelegates(topDelegatesResponse.data || []);
+          setTopDelegates(topDelegatesResponse.data.slice(0, -1) || []);
         } catch (error) {
           setTopDelegates([]);
           console.error(error);

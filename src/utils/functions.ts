@@ -44,5 +44,5 @@ export const formatDate = (
 };
 
 export const calculatePercentage = (n: number) => {
-  return `${(n * 100).toFixed(2)}%`;
+  return `${(n * 100).toFixed(3)}%`;
 }
