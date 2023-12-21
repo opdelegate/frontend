@@ -16,6 +16,7 @@ import LandingPage from './components/LandingPage';
 import { WagmiConfig } from 'wagmi';
 import wagmiConfig from './wagmiConfig';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import TopDelegates from './components/TopDelegates';
 
 export enum GLOBAL_ROUTES {
   ROOT = '/',
@@ -61,6 +62,10 @@ function App() {
                         path={`${GLOBAL_ROUTES.ROOT}:userAddress`}
                         element={<Dashboard />}
                       />
+                      <Route
+                        path={`${GLOBAL_ROUTES.ROOT}topdelegates`}
+                        element={<TopDelegates />}
+                      />
                     </>
                   )}
                   {user && (
@@ -72,6 +77,10 @@ function App() {
                       <Route
                         path={GLOBAL_ROUTES.ROOT}
                         element={<Dashboard />}
+                      />
+                      <Route
+                        path={`${GLOBAL_ROUTES.ROOT}topdelegates`}
+                        element={<TopDelegates />}
                       />
                     </>
                   )}

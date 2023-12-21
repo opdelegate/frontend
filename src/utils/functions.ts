@@ -1,3 +1,5 @@
+import exp from "constants";
+
 export const formatNumber = (n: number) => {
   return (
     n?.toLocaleString(
@@ -40,3 +42,7 @@ export const formatDate = (
     return new Date(a).toLocaleDateString('en-US', options);
   }
 };
+
+export const calculatePercentage = (n: number) => {
+  return `${(n * 100).toFixed(2)}%`;
+}
