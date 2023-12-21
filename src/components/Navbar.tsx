@@ -56,8 +56,9 @@ function Navbar() {
 
   //
   const onSearch = useCallback(() => {
-    console.log(searcherValue);
-    if (searcherValue) navigate(`${GLOBAL_ROUTES.ROOT}${searcherValue}`);
+    // console.log('VALUE TO SEARCH: ', searcherValue);
+    if (searcherValue)
+      navigate(`${GLOBAL_ROUTES.ROOT}${searcherValue}`, { replace: true });
   }, [navigate, searcherValue]);
 
   useEffect(() => {
