@@ -22,22 +22,19 @@ import { calculatePercentage, formatAddress, formatNumber } from '../utils/funct
 import { GLOBAL_ROUTES } from '../App';
 import { useNavigate } from 'react-router-dom';
 import { SlMagnifier } from 'react-icons/sl';
-// import { useContext } from 'react';
-// import { UserContext } from '../contexts/UserContext';
-// import { UserContextType } from '../types/userTypes';
-import { User } from '../types/userTypes';
-
 
 export const TopDelegatesTable = ({
     headers,
     label,
     data,
     pageSize,
+    connectWalletAddress,
 }: {
     headers: string[];
     label: string;
     data: Delegates[];
     pageSize: number;
+    connectWalletAddress: string | undefined;
 }) => {
     const { hasCopied, onCopy, value, setValue } = useClipboard('', 500);
     useEffect(() => {
@@ -52,13 +49,25 @@ export const TopDelegatesTable = ({
     const navigate = useNavigate();
     const [dataToShow, setDataToShow] = useState<Delegates[]>([]);
     const [searchValue, setSearchValue] = useState('');
+    const [connectedUserDelegate, setConnectedUserDelegate] = useState<Delegates|null>(null);
 
-    //The first time this component loads
+    const setUserData = useCallback(() => {
+        if (connectWalletAddress) {
+            const connectedUserDelegate = data.find((d) => d.address === connectWalletAddress);
+            if (connectedUserDelegate) {
+                setConnectedUserDelegate(connectedUserDelegate);
+            }
+        }
+    }, [connectWalletAddress, data]);
+
+    // The first time this component loads
     useEffect(() => {
         if (data.length > 0) {
             setDataToShow(data.slice(0, pageSize));
+            setUserData();
         }
-    }, [data]);
+    }, [data, connectWalletAddress]);
+
 
     const onPageChange = useCallback(
         (currentPage: number) => {
@@ -96,6 +105,7 @@ export const TopDelegatesTable = ({
                     value={searchValue}
                     onChange={(e) => {
                         setSearchValue(e.target.value);
+                        handleSearchSubmit();
                     }}
                 />
                 <InputRightElement
@@ -110,29 +120,52 @@ export const TopDelegatesTable = ({
                 </InputRightElement>
             </InputGroup>
         </Box>
-
+        {connectedUserDelegate && (
+            <Box pt={4}>
+                <TableContainer>
+                    <Table w="100%" size="sm">
+                        <Tbody w="100%">
+                        <Tr w="100%" backgroundColor='#F30F210D'>
+                            <Td w="20%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700}>
+                                {connectedUserDelegate.rank}
+                            </Td>
+                            <Td w="30%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700}>
+                                {(connectedUserDelegate.ensName !== null ? connectedUserDelegate.ensName : formatAddress(connectedUserDelegate.address))}
+                            </Td>
+                            <Td w="30%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700} display={["none", "none", "table-cell"]}>
+                                {formatNumber(Math.round(connectedUserDelegate.supply))} OP
+                            </Td>
+                            <Td w="20%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700}>
+                                {calculatePercentage(connectedUserDelegate.supplyPct)}
+                            </Td>
+                        </Tr>
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+            </Box>
+        )}
         <Box pb={6} pt={4}>
             <TableContainer>
-            <Table w="100%" variant="striped" size="sm">
+            <Table w="100%" size="sm">
                 <Thead>
-                <Tr>
+                <Tr backgroundColor='#F8F8F8'>
                     <Td>
                     <Text as="b">#</Text>
                     </Td>
-                    {headers.map((header) => (
-                    <Td>
+                    {headers.map((header, idx) => (
+                    <Td key={idx} display={header==='Votable Supply' ? ["none", "none", "table-cell"] :  ["table-cell", "table-cell", "table-cell"] }>
                         <Text as="b">{header}</Text>
                     </Td>
                     ))}
                 </Tr>
                 </Thead>
                 <Tbody w="100%">
-                {dataToShow.map((d) => (
-                    <Tr key={d.address} w="100%">
-                    <Td w="20%" borderColor="transparent">
+                {dataToShow.map((d, index) => (
+                    <Tr key={d.address} w="100%"  backgroundColor={d.address === connectedUserDelegate?.address ? '#F30F210D' : index % 2 === 1 ? '#EBF2FF80' : 'inherit' }>
+                    <Td w="20%" borderColor="transparent" textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'}>
                         {d.rank}
                     </Td>
-                    <Td w="30%" borderColor="transparent">
+                    <Td w="30%" borderColor="transparent" textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'}>
                         <HStack>
                         <Text 
                             cursor="pointer"
@@ -153,10 +186,10 @@ export const TopDelegatesTable = ({
                         />
                         </HStack>
                     </Td>
-                    <Td w="30%" borderColor="transparent">
+                    <Td w="30%" borderColor="transparent"  textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'} display={["none", "none", "table-cell"]}>
                         {formatNumber(Math.round(d.supply))} OP
                     </Td>
-                    <Td w="20%" borderColor="transparent">
+                    <Td w="20%" borderColor="transparent"  textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'}>
                         {calculatePercentage(d.supplyPct)}
                     </Td>
                     </Tr>
