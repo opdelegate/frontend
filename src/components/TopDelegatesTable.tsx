@@ -48,9 +48,9 @@ export const TopDelegatesTable = ({
 
     const navigate = useNavigate();
     const [dataToShow, setDataToShow] = useState<Delegates[]>([]);
-    const [searchValue, setSearchValue] = useState('');
     const [connectedUserDelegate, setConnectedUserDelegate] = useState<Delegates|null>(null);
-    const [totalFilteredLength, setTotalFilteredLength] = useState(0);
+    const [searchValue, setSearchValue] = useState('');
+    const [searchedResult, setSearchedResult] = useState<Delegates[]>([]);
 
     const setUserData = useCallback(() => {
         if (connectWalletAddress) {
@@ -65,26 +65,25 @@ export const TopDelegatesTable = ({
     useEffect(() => {
         if (data.length > 0) {
             setDataToShow(data.slice(0, pageSize));
-            setTotalFilteredLength(data.length);
+            setSearchedResult(data);
             setUserData();
         }
     }, [data, connectWalletAddress]);
 
-
     const onPageChange = useCallback(
         (currentPage: number) => {
         const initial = (currentPage - 1) * pageSize;
-        setDataToShow(data.slice(initial, initial + pageSize));
-    },[data]);
+        setDataToShow(searchedResult.slice(initial, initial + pageSize));
+    },[]);
 
     // filter out the specific row and set the setDataToShow to the filtered data
-    const handleSearchSubmit = () => {
+    useEffect(() => {
         const filteredData = data.filter((d) => {
-          return d.address.toLowerCase().includes(searchValue.toLowerCase()) || d.ensName?.toLowerCase().includes(searchValue.toLowerCase());
+            return d.address.toLowerCase().includes(searchValue.toLowerCase()) || (d.ensName && d.ensName.toLowerCase().includes(searchValue.toLowerCase()));
         });
+        setSearchedResult(filteredData);
         setDataToShow(filteredData.slice(0, pageSize));
-        setTotalFilteredLength(filteredData.length);
-    };
+    }, [searchValue]);
   
     return (
       <Box
@@ -108,14 +107,12 @@ export const TopDelegatesTable = ({
                     value={searchValue}
                     onChange={(e) => {
                         setSearchValue(e.target.value);
-                        handleSearchSubmit();
                     }}
                 />
                 <InputRightElement
                     width="2.5rem"
                     borderLeft="1px #e2e8f0 solid"
                     cursor="pointer"
-                    onClick={handleSearchSubmit}
                 >
                     <Box color="#555555d9">
                     <SlMagnifier />
@@ -201,7 +198,7 @@ export const TopDelegatesTable = ({
             </Table>
             <Box mt={2}>
                 <CustomPagination
-                total={totalFilteredLength}
+                total={searchedResult.length}
                 pageSize={pageSize}
                 onPageChange={onPageChange}
                 />
