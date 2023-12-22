@@ -50,6 +50,7 @@ export const TopDelegatesTable = ({
     const [dataToShow, setDataToShow] = useState<Delegates[]>([]);
     const [searchValue, setSearchValue] = useState('');
     const [connectedUserDelegate, setConnectedUserDelegate] = useState<Delegates|null>(null);
+    const [totalFilteredLength, setTotalFilteredLength] = useState(0);
 
     const setUserData = useCallback(() => {
         if (connectWalletAddress) {
@@ -64,6 +65,7 @@ export const TopDelegatesTable = ({
     useEffect(() => {
         if (data.length > 0) {
             setDataToShow(data.slice(0, pageSize));
+            setTotalFilteredLength(data.length);
             setUserData();
         }
     }, [data, connectWalletAddress]);
@@ -81,6 +83,7 @@ export const TopDelegatesTable = ({
           return d.address.toLowerCase().includes(searchValue.toLowerCase()) || d.ensName?.toLowerCase().includes(searchValue.toLowerCase());
         });
         setDataToShow(filteredData.slice(0, pageSize));
+        setTotalFilteredLength(filteredData.length);
     };
   
     return (
@@ -132,7 +135,7 @@ export const TopDelegatesTable = ({
                             <Td w="30%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700}>
                                 {(connectedUserDelegate.ensName !== null ? connectedUserDelegate.ensName : formatAddress(connectedUserDelegate.address))}
                             </Td>
-                            <Td w="30%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700} display={["none", "none", "table-cell"]}>
+                            <Td w="30%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700}>
                                 {formatNumber(Math.round(connectedUserDelegate.supply))} OP
                             </Td>
                             <Td w="20%" borderColor="#FF0420" textColor='#FF0420' borderTop='1px' fontSize='20px' fontWeight={700}>
@@ -153,7 +156,7 @@ export const TopDelegatesTable = ({
                     <Text as="b">#</Text>
                     </Td>
                     {headers.map((header, idx) => (
-                    <Td key={idx} display={header==='Votable Supply' ? ["none", "none", "table-cell"] :  ["table-cell", "table-cell", "table-cell"] }>
+                    <Td key={idx}>
                         <Text as="b">{header}</Text>
                     </Td>
                     ))}
@@ -161,7 +164,7 @@ export const TopDelegatesTable = ({
                 </Thead>
                 <Tbody w="100%">
                 {dataToShow.map((d, index) => (
-                    <Tr key={d.address} w="100%"  backgroundColor={d.address === connectedUserDelegate?.address ? '#F30F210D' : index % 2 === 1 ? '#EBF2FF80' : 'inherit' }>
+                    <Tr key={index} w="100%"  backgroundColor={d.address === connectedUserDelegate?.address ? '#F30F210D' : index % 2 === 1 ? '#EBF2FF80' : 'inherit' }>
                     <Td w="20%" borderColor="transparent" textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'}>
                         {d.rank}
                     </Td>
@@ -186,7 +189,7 @@ export const TopDelegatesTable = ({
                         />
                         </HStack>
                     </Td>
-                    <Td w="30%" borderColor="transparent"  textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'} display={["none", "none", "table-cell"]}>
+                    <Td w="30%" borderColor="transparent"  textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'}>
                         {formatNumber(Math.round(d.supply))} OP
                     </Td>
                     <Td w="20%" borderColor="transparent"  textColor={d.address === connectedUserDelegate?.address ? '#FF0420' : 'inherit'}>
@@ -198,7 +201,7 @@ export const TopDelegatesTable = ({
             </Table>
             <Box mt={2}>
                 <CustomPagination
-                total={data.length}
+                total={totalFilteredLength}
                 pageSize={pageSize}
                 onPageChange={onPageChange}
                 />
