@@ -74,7 +74,7 @@ export const TopDelegatesTable = ({
         (currentPage: number) => {
         const initial = (currentPage - 1) * pageSize;
         setDataToShow(searchedResult.slice(initial, initial + pageSize));
-    },[]);
+    },[searchedResult]);
 
     // filter out the specific row and set the setDataToShow to the filtered data
     useEffect(() => {
