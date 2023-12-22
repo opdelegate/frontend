@@ -7,12 +7,12 @@ import {
     ShowLoaderContext,
     ShowLoaderContextType,
   } from '../contexts/ShowLoaderContext';
-// import { useContext } from 'react';
-// import { UserContext } from '../contexts/UserContext';
-// import { UserContextType } from '../types/userTypes';
+import { UserContext } from '../contexts/UserContext';
+import { UserContextType } from '../types/userTypes';
 
 const tableHeaders = ['Delegate', 'Votable Supply', 'Votable Supply(%)'];
 function topDelegates() {
+    const { user, setUser }: UserContextType = useContext(UserContext);
     const { setShowLoader }: ShowLoaderContextType = useContext(ShowLoaderContext);
     const [topDelegates, setTopDelegates] = useState<Delegates[]>([]);
 
@@ -20,7 +20,7 @@ function topDelegates() {
         setShowLoader(true);
         try {
           const topDelegatesResponse = await getTopDelegates();
-          setTopDelegates(topDelegatesResponse.data.slice(0, -1) || []);
+          setTopDelegates(topDelegatesResponse.data || []);
         } catch (error) {
           setTopDelegates([]);
           console.error(error);
@@ -43,7 +43,7 @@ function topDelegates() {
               headers={tableHeaders} 
               data={topDelegates}
               pageSize={10} 
-              connectWalletAddress={'0x1b686ee8e31c5959d9f5bbd8122a58682788eead'}
+              connectWalletAddress={user?.address}
             />
         </Box>
     );
