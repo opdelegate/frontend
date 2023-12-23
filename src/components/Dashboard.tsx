@@ -29,19 +29,11 @@ import {
 } from '../types/dataTypes';
 import { formatAddress } from '../utils/functions';
 import { fetchEnsName, fetchEnsAddress } from 'wagmi/actions';
+import CustomPieChart from './CustomPieChart';
 
 const CHART_HEIGHT = '330';
 
 const tableHeaders = ['Delegator', 'OP delegated'];
-
-const barsData = [
-  { label: '0-5', quantity: 10 },
-  { label: '5-50', quantity: 20 },
-  { label: '50-500', quantity: 30 },
-  { label: '500-5k', quantity: 35 },
-  { label: '+5k', quantity: 35 },
-  { label: '+10k', quantity: 40 },
-];
 
 function Dashboard() {
   const { param } = useParams();
@@ -299,9 +291,13 @@ function Dashboard() {
               setData={setTopDelegators}
             />
           </Box>
-          {/* <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
-            <CustomBarsChart data={barsData} label="Delegator sizes" />
-          </Box> */}
+          <Box w={['100%', '100%', '50%']} h={CHART_HEIGHT}>
+            <CustomPieChart
+              totalDelegated={lastOpDelegated}
+              data={topDelegators.slice(0, 10)}
+              label="Delegator sizes"
+            />
+          </Box>
         </Stack>
       </Stack>
     </Box>
