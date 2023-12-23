@@ -20,3 +20,11 @@ export interface DelegatorAmount {
   ensName: string;
   searchedEnsName: boolean;
 }
+
+export interface Delegates {
+  rank: number;
+  address: string;
+  supply: number;
+  supplyPct: number;
+  ensName: string | null;
+}

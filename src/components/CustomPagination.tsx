@@ -28,8 +28,11 @@ const CustomPagination = ({
   });
 
   useEffect(() => {
+    if (Math.ceil(total / pageSize) < currentPage) {
+      setCurrentPage(1);
+    }
     onPageChange(currentPage);
-  }, [currentPage]);
+  }, [currentPage, total]);
 
   return (
     <Pagination

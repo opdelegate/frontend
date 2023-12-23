@@ -56,8 +56,9 @@ function Navbar() {
 
   //
   const onSearch = useCallback(() => {
-    console.log(searcherValue);
-    if (searcherValue) navigate(`${GLOBAL_ROUTES.ROOT}${searcherValue}`);
+    // console.log('VALUE TO SEARCH: ', searcherValue);
+    if (searcherValue)
+      navigate(`${GLOBAL_ROUTES.ROOT}${searcherValue}`, { replace: true });
   }, [navigate, searcherValue]);
 
   useEffect(() => {
@@ -73,13 +74,14 @@ function Navbar() {
       };
       setItemToLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER, loggedInUser);
       setUser(loggedInUser);
-      navigate(GLOBAL_ROUTES.ROOT);
+      // Muted this bcs it was redirecting to root when an address was in the url
+      //   navigate(GLOBAL_ROUTES.ROOT);
     }
     if (isDisconnected && user) {
       console.log('B');
       removeItemFromLocalStorage(LOCALSTORAGE_OBJECTS_NAMES.USER);
       setUser(undefined);
-      navigate(GLOBAL_ROUTES.ROOT);
+      //   navigate(GLOBAL_ROUTES.ROOT);
     }
   }, [
     address,
