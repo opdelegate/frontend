@@ -145,3 +145,23 @@ export const geTopDelegators = async (
     };
   }
 };
+
+export const getTopDelegates = async (): Promise<CustomResponse> => {
+  try {
+    const { data: responseData } = await axios.get<[]>(
+      `${import.meta.env.VITE_API_URL}/get_top_delegates`,
+    );
+    if (responseData?.length > 0)
+      return {
+        success: true,
+        message: 'Data Retrieved',
+        data: responseData,
+      };
+    else throw new Error('No data retrieved');
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+}
