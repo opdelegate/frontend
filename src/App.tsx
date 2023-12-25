@@ -63,7 +63,7 @@ function App() {
                         element={<Dashboard />}
                       />
                       <Route
-                        path={`${GLOBAL_ROUTES.ROOT}topdelegates`}
+                        path={`${GLOBAL_ROUTES.ROOT}overview`}
                         element={<TopDelegates />}
                       />
                     </>
@@ -71,15 +71,15 @@ function App() {
                   {user && (
                     <>
                       <Route
+                        path={GLOBAL_ROUTES.ROOT}
+                        element={<LandingPage />}
+                      />
+                      <Route
                         path={`${GLOBAL_ROUTES.ROOT}:param`}
                         element={<Dashboard />}
                       />
                       <Route
-                        path={GLOBAL_ROUTES.ROOT}
-                        element={<Dashboard />}
-                      />
-                      <Route
-                        path={`${GLOBAL_ROUTES.ROOT}topdelegates`}
+                        path={`${GLOBAL_ROUTES.ROOT}overview`}
                         element={<TopDelegates />}
                       />
                     </>
