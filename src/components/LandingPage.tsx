@@ -24,7 +24,11 @@ const LandingPage = () => {
   const { setShowLoader }: ShowLoaderContextType =
     useContext(ShowLoaderContext);
 
-  //WAGMI
+    const handleRedirect = () => {
+      window.location.href = '/overview'; // Redirect to /overview
+    };
+    
+    //WAGMI
   const { address, isConnected, isDisconnected, isConnecting, isReconnecting } =
     useAccount();
   const { data: ensName } = useEnsName({ address });
@@ -64,13 +68,23 @@ const LandingPage = () => {
           insights. Seamlessly explore your own real-time metrics or view the
           data of any other delegate.
         </Text>
-        <ConnectWalletButton
-          connectors={connectors}
-          isLoading={isLoading}
-          connect={connect}
-          pendingConnector={pendingConnector}
-          isLargeScreen={true}
-        />
+        <Button
+          onClick={handleRedirect}
+          variant="solid"
+          borderRadius="60px"
+          background="linear-gradient(90deg, #F30F21 0%, #9205FD 100%)"
+          justifyContent="center"
+          paddingX={['0', 4, '22px']}
+          width={['45px', '45px', 'auto']}
+          display={['grid', 'inline-flex', 'inline-flex']}
+          color="white"
+          fontSize="14px"
+          h="45px"
+          minWidth="unset"
+          maxWidth="unset"
+        >
+          Enter App
+        </Button>
       </Box>
 
       <Box width={['100%', '100%', 750, 750, 750]}>
